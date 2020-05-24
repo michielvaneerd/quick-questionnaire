@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Easy Exercise
-Version: 1.17
+Version: 1.18
 Description: Create simple exercises directly in the editor
 Text Domain: easy_exercise
 Author: Michiel van Eerd

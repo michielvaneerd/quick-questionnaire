@@ -2,7 +2,7 @@
 Contributors: michielve
 Tags: exercise, practice, test
 Requires at least: 3.0.1
-Tested up to: 5.0.2
+Tested up to: 5.4.1
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -80,6 +80,10 @@ Just override the classes you see in the easy_exercise.css file.
 4. Edit the exercise in the editor is simple
 
 == Changelog ==
+
+= 1.18 =
+* Renamed to Easy Exercise everywhere
+* Changed some CSS
 
 = 1.17 =
 * Fixed bug: check for empty global $post variable in run_wptexturize filter
