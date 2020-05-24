@@ -1,0 +1,44 @@
+.easy_exercise-list li {
+  position: relative;
+  margin-bottom:2rem;
+}
+
+.easy_exercise-list .easy_exercise-goodquestion {
+  color:seagreen;
+}
+
+.easy_exercise-list .easy_exercise-wrongquestion {
+  color:crimson;
+}
+
+.easy_exercise-list .easy_exercise-goodquestion:before,
+.easy_exercise-list .easy_exercise-wrongquestion:before {
+  position: absolute;
+  left: -2.6rem;
+}
+
+.easy_exercise-list .easy_exercise-goodquestion:before {
+  content: "\2714";
+}
+
+.easy_exercise-list .easy_exercise-wrongquestion:before {
+  content: "\2718";
+}
+
+.easy_exercise_input_wrapper label {
+  display:block;
+}
+
+.easy_exercise_input_wrapper {
+  margin-top: 1rem;
+}
+
+.easy_exercise-button-wrapper button {
+  margin-right:1rem;
+}
+
+.easy_exercise_checkbox, .easy_exercise_radio {
+  margin-right:1rem;
+}
+
+.easy_exercise-list 

@@ -3,7 +3,7 @@
 Plugin Name: Easy Exercise
 Version: 1.17
 Description: Create simple exercises directly in the editor
-Text Domain: quick_questionnaire
+Text Domain: easy_exercise
 Author: Michiel van Eerd
 Author URI: http://www.michielvaneerd.nl
 License: GPL2
@@ -11,16 +11,16 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Domain Path: /languages
 */
 
-function quick_questionnaire_register_my_content_types() {
+function easy_exercise_register_my_content_types() {
 
-  register_post_type('quick_questionnaire', array(
+  register_post_type('easy_exercise', array(
     'labels' => array(
-      'name' => __('Exercise', 'quick_questionnaire'),
-      'singular_name' => __('Exercise', 'quick_questionnaire'),
-      'add_new_item' => __('Add New Exercise', 'quick_questionnaire'),
-      'edit_item' => __('Edit Exercise', 'quick_questionnaire'),
+      'name' => __('Easy Exercise', 'easy_exercise'),
+      'singular_name' => __('Easy Exercise', 'easy_exercise'),
+      'add_new_item' => __('Add New Easy Exercise', 'easy_exercise'),
+      'edit_item' => __('Edit Easy Exercise', 'easy_exercise'),
     ),
-    'rewrite' => array('slug' => 'quick-questionnaires'),
+    'rewrite' => array('slug' => 'easy_exercises'),
     'public' => true,
     'has_archive' => true,
     'show_in_rest' => true
@@ -33,27 +33,27 @@ function quick_questionnaire_register_my_content_types() {
 Enqueue the plugin CSS and Javascript only when looking
 at a single questionnaire.
 */
-function quick_questionnaire_add_plugin_scripts() {
+function easy_exercise_add_plugin_scripts() {
 
-  if (is_single() && get_post_type() === 'quick_questionnaire') {
+  if (is_single() && get_post_type() === 'easy_exercise') {
 
-    wp_enqueue_script('quick_questionnaire', plugin_dir_url(__FILE__) . 'js/quick_questionnaire.js', array('jquery'), '1.0.0', true);
-    wp_enqueue_style('quick_questionnaire_style', plugin_dir_url(__FILE__) . 'css/quick_questionnaire.css');
+    wp_enqueue_script('easy_exercise', plugin_dir_url(__FILE__) . 'js/easy_exercise.js', array('jquery'), '1.0.0', true);
+    wp_enqueue_style('easy_exercise_style', plugin_dir_url(__FILE__) . 'css/easy_exercise.css');
     
-    wp_localize_script('quick_questionnaire', 'my_ajax_obj', array(
+    wp_localize_script('easy_exercise', 'my_ajax_obj', array(
       'ajax_url' => admin_url('admin-ajax.php'),
-      'nonce' => wp_create_nonce('quick_questionnaire_check'),
+      'nonce' => wp_create_nonce('easy_exercise_check'),
       'L' => array(
-        'show' => __('Show', 'quick_questionnaire'),
-        'check' => __('Check', 'quick_questionnaire'),
-        'reset' => __('Reset', 'quick_questionnaire'),
+        'show' => __('Show', 'easy_exercise'),
+        'check' => __('Check', 'easy_exercise'),
+        'reset' => __('Reset', 'easy_exercise'),
       )
     ));
   }
 
 }
 
-function quick_questionnaire_show_shared($post_id, $list_id = null) {
+function easy_exercise_show_shared($post_id, $list_id = null) {
   if (get_post_meta($post_id, '_qq_enable_show_btn', true) !== 'Y') {
     return false;
   }
@@ -67,14 +67,14 @@ function quick_questionnaire_show_shared($post_id, $list_id = null) {
 /*
 Callback that is called from AJAX to show good answers.
 */
-function quick_questionnaire_show() {
+function easy_exercise_show() {
 
-  check_ajax_referer('quick_questionnaire_check');
+  check_ajax_referer('easy_exercise_check');
   
   $post_id = $_POST['post_id'];
   $list_id = $_POST['list'];
 
-  $result = quick_questionnaire_show_shared($post_id, $list_id);
+  $result = easy_exercise_show_shared($post_id, $list_id);
   if (!$result) {
     wp_send_json_error();
   }
@@ -85,7 +85,7 @@ function quick_questionnaire_show() {
 /**
  * Shared by both AJAX and POST from API.
  */
-function quick_questionnaire_check_shared($post_id, $postedAnswers) {
+function easy_exercise_check_shared($post_id, $postedAnswers) {
   $goodAnswers = json_decode(get_post_meta($post_id, '_qq_good_answers', true), true);
   $results = array();
 
@@ -131,14 +131,14 @@ function quick_questionnaire_check_shared($post_id, $postedAnswers) {
 /*
 Callback that is called from AJAX to check for good answers.
 */
-function quick_questionnaire_check() {
+function easy_exercise_check() {
   
-  check_ajax_referer('quick_questionnaire_check');
+  check_ajax_referer('easy_exercise_check');
 
   $post_id = $_POST['post_id'];
   $postedAnswers = json_decode(stripslashes($_POST['answers']), true); // listId => object(questionId => answer|answers)
 
-  $results = quick_questionnaire_check_shared($post_id, $postedAnswers);
+  $results = easy_exercise_check_shared($post_id, $postedAnswers);
   wp_send_json($results);
 
 }
@@ -146,7 +146,7 @@ function quick_questionnaire_check() {
 /*
 Helper function to get innerHTML of DOMNode.
 */
-function quick_questionnaire_DOMinnerHTML(DOMNode $element) { 
+function easy_exercise_DOMinnerHTML(DOMNode $element) { 
   $innerHTML = ''; 
   $children  = $element->childNodes;
   foreach ($children as $child) {
@@ -162,14 +162,14 @@ Callback to filter the content only for this specific post types.
 This getting called both when in single mode as well when looping
 through multiple posts.
 */
-function quick_questionnaire_filter_the_content($content) {
+function easy_exercise_filter_the_content($content) {
 
   // When saving this post from the admin backend we don't apply this filter.
   if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     return $content;
   }
 
-  if (get_post_type() === 'quick_questionnaire') {
+  if (get_post_type() === 'easy_exercise') {
 
     $post_id = get_the_ID();
 
@@ -180,7 +180,7 @@ function quick_questionnaire_filter_the_content($content) {
       
       $showButton = get_post_meta($post_id, '_qq_enable_show_btn', true) === 'Y'
         ? 'true' : 'false';
-      return $parsedContent . '<script>var QUICK_QUESTIONNAIRE_POST_ID = ' . $post_id . '; var QUICK_QUESTIONNAIRE_ANSWERS = ' . $answers2send . '; var QUICK_QUESTIONNAIRE_SHOW_BUTTON = ' . $showButton . ';</script>';
+      return $parsedContent . '<script>var EASY_EXERCISE_POST_ID = ' . $post_id . '; var EASY_EXERCISE_ANSWERS = ' . $answers2send . '; var EASY_EXERCISE_SHOW_BUTTON = ' . $showButton . ';</script>';
     }
 
     return $parsedContent;
@@ -189,25 +189,25 @@ function quick_questionnaire_filter_the_content($content) {
   return $content;
 }
 
-function quick_questionnaire_meta_box_html($post) {
+function easy_exercise_meta_box_html($post) {
   $value = get_post_meta($post->ID, '_qq_enable_show_btn', true);
   ?>
   <label><input type="checkbox"
     <?php checked($value, 'Y'); ?>
-    name="qq_enable_show_btn" value="Y"> <?php _e('Enable show button', 'quick_questionnaire'); ?></label>
+    name="qq_enable_show_btn" value="Y"> <?php _e('Enable show button', 'easy_exercise'); ?></label>
   <?php
 }
 
-function quick_questionnaire_add_meta_boxes() {
-  add_meta_box('quick_questionnaire_meta_box', __('Exercise Settings', 'quick_questionnaire'),
-    'quick_questionnaire_meta_box_html', 'quick_questionnaire', 'side');
+function easy_exercise_add_meta_boxes() {
+  add_meta_box('easy_exercise_meta_box', __('Easy Exercise Settings', 'easy_exercise'),
+    'easy_exercise_meta_box_html', 'easy_exercise', 'side');
 }
 
-function quick_questionnaire_json_encode($value) {
+function easy_exercise_json_encode($value) {
   return json_encode($value, JSON_UNESCAPED_UNICODE);
 }
 
-function quick_questionnaire_save_post($post_id, $post, $update) {
+function easy_exercise_save_post($post_id, $post, $update) {
   
   // $update is false on first save for new posts, maybe then we can have a shortcut?
   //if (!$update) return;
@@ -231,7 +231,7 @@ function quick_questionnaire_save_post($post_id, $post, $update) {
       $listItems = $list->getElementsByTagName('li');
       $expressionFound = false;
       foreach ($listItems as $listItem) {
-        $innerHTML = quick_questionnaire_DOMinnerHTML($listItem);
+        $innerHTML = easy_exercise_DOMinnerHTML($listItem);
         $matches = null;
         if (preg_match("/{(reg|text|radio|checkbox){([^}]+)}}/", $innerHTML, $matches)) {
           $answerType = $matches[1]; // empty or filled
@@ -240,8 +240,8 @@ function quick_questionnaire_save_post($post_id, $post, $update) {
           if (!$expressionFound) {
             $expressionFound = true;
             $listId += 1;
-            $list->setAttribute('data-quick_questionnaire-list-id', $listId);
-            $list->setAttribute('class', 'quick_questionnaire-list');
+            $list->setAttribute('data-easy_exercise-list-id', $listId);
+            $list->setAttribute('class', 'easy_exercise-list');
             $goodAnswers[$listId] = array();
           }
           $innerHTML = str_replace($matches[0], '', $innerHTML);
@@ -257,7 +257,7 @@ function quick_questionnaire_save_post($post_id, $post, $update) {
             break;
           }
           
-          $listItem->setAttribute('data-quick_questionnaire-item-id', $listItemId);
+          $listItem->setAttribute('data-easy_exercise-item-id', $listItemId);
           if ($answerType === 'reg') {
             $goodAnswers[$listId][$listItemId] = array(
               'type' => $answerType,
@@ -310,8 +310,8 @@ function quick_questionnaire_save_post($post_id, $post, $update) {
   }
 
   update_post_meta($post_id, '_qq_content', $content2save);
-  update_post_meta($post_id, '_qq_good_answers', quick_questionnaire_json_encode($goodAnswers));
-  update_post_meta($post_id, '_qq_possible_answers', quick_questionnaire_json_encode($answers2send));
+  update_post_meta($post_id, '_qq_good_answers', easy_exercise_json_encode($goodAnswers));
+  update_post_meta($post_id, '_qq_possible_answers', easy_exercise_json_encode($answers2send));
 
   if (!empty($_POST['qq_enable_show_btn'])) {
     update_post_meta($post_id, '_qq_enable_show_btn', 'Y');
@@ -321,43 +321,43 @@ function quick_questionnaire_save_post($post_id, $post, $update) {
 
 }
 
-function quick_questionnaire_activation() {
-  quick_questionnaire_register_my_content_types();
+function easy_exercise_activation() {
+  easy_exercise_register_my_content_types();
   flush_rewrite_rules();
 }
 
-function quick_questionnaire_deactivation() {
-  unregister_post_type('quick_questionnaire');
+function easy_exercise_deactivation() {
+  unregister_post_type('easy_exercise');
   flush_rewrite_rules();
 }
 
-function quick_questionnaire_load_plugin_textdomain() {
-  load_plugin_textdomain('quick_questionnaire', FALSE,
+function easy_exercise_load_plugin_textdomain() {
+  load_plugin_textdomain('easy_exercise', FALSE,
     basename(dirname(__FILE__)) . '/languages/');
 }
-add_action('plugins_loaded', 'quick_questionnaire_load_plugin_textdomain');
+add_action('plugins_loaded', 'easy_exercise_load_plugin_textdomain');
 
 // Disable wptexturize for this post type
 // Because ellipsis gets f*cked up with utf8_decode...
-function quick_questionnaire_run_wptexturize($run_texturize) {
+function easy_exercise_run_wptexturize($run_texturize) {
   global $post;
   if (!empty($post)) {
-    return $post->post_type !== 'quick_questionnaire';
+    return $post->post_type !== 'easy_exercise';
   }
   return true;
 }
-add_filter('run_wptexturize', 'quick_questionnaire_run_wptexturize');
+add_filter('run_wptexturize', 'easy_exercise_run_wptexturize');
 
 add_action('rest_api_init', function() {
 
-  // Adding answers array to default WP endpoint of quick_questionnaire
-  register_rest_field('quick_questionnaire', 'qq_answers', array(
+  // Adding answers array to default WP endpoint of easy_exercise
+  register_rest_field('easy_exercise', 'qq_answers', array(
     'get_callback' => function($object) {
       return json_decode(get_post_meta($object['id'], '_qq_possible_answers', true));
     }
   ));
 
-  register_rest_field('quick_questionnaire', 'qq_correct_answers', array(
+  register_rest_field('easy_exercise', 'qq_correct_answers', array(
     'get_callback' => function($object) {
       if (get_post_meta($object['id'], '_qq_enable_show_btn', true) === 'Y') {
         return json_decode(get_post_meta($object['id'], '_qq_good_answers', true));
@@ -368,14 +368,14 @@ add_action('rest_api_init', function() {
   ));
 
   // POST endpoint - client sends given answers and server sends back results
-  register_rest_route('qq/v1', '/quick_questionnaire/(?<id>\d+)', array(
+  register_rest_route('qq/v1', '/easy_exercise/(?<id>\d+)', array(
     array(
       'methods' => WP_REST_Server::CREATABLE,
       'callback' => function(WP_REST_Request $request) {
         // Caller has to set application/json in order to get the body as json params!
         $postedAnswers = $request->get_json_params();
         $post_id = $request['id'];
-        $results = quick_questionnaire_check_shared($post_id, $postedAnswers);
+        $results = easy_exercise_check_shared($post_id, $postedAnswers);
         return rest_ensure_response($results);
       }
     ),
@@ -385,7 +385,7 @@ add_action('rest_api_init', function() {
       'methods' => WP_REST_Server::READABLE,
       'callback' => function(WP_REST_Request $request) {
         $post_id = $request['id'];
-        $results = quick_questionnaire_show_shared($post_id);
+        $results = easy_exercise_show_shared($post_id);
         if (!$results) {
           $response = new WP_REST_Response(array('error' => 'No permission to show correct answers'));
           $response->set_status(403);
@@ -400,12 +400,12 @@ add_action('rest_api_init', function() {
   // GET endpoint - client wants to get correct answers (can be ON/OFF per post)
   // This one is not needed anymore, because we now send the correct answers
   // in the default WP queries.
-  register_rest_route('qq/v1', '/quick_questionnaire/(?<id>\d+)/(?<listid>\d+)', array(
+  register_rest_route('qq/v1', '/easy_exercise/(?<id>\d+)/(?<listid>\d+)', array(
     'methods' => WP_REST_Server::READABLE,
     'callback' => function(WP_REST_Request $request) {
       $post_id = $request['id'];
       $list_id = $request['listid'];
-      $results = quick_questionnaire_show_shared($post_id, $list_id);
+      $results = easy_exercise_show_shared($post_id, $list_id);
       if (!$results) {
         $response = new WP_REST_Response(array('error' => 'No permission to show correct answers'));
         $response->set_status(403);
@@ -420,16 +420,16 @@ add_action('rest_api_init', function() {
 
 });
 
-add_action('init', 'quick_questionnaire_register_my_content_types');
-add_action('wp_enqueue_scripts', 'quick_questionnaire_add_plugin_scripts');
-add_filter('the_content', 'quick_questionnaire_filter_the_content');
-add_filter('the_excerpt', 'quick_questionnaire_filter_the_content');
-add_action('wp_ajax_nopriv_quick_questionnaire_check', 'quick_questionnaire_check');
-add_action('wp_ajax_quick_questionnaire_check', 'quick_questionnaire_check');
-add_action('wp_ajax_nopriv_quick_questionnaire_show', 'quick_questionnaire_show');
-add_action('wp_ajax_quick_questionnaire_show', 'quick_questionnaire_show');
-add_action('add_meta_boxes', 'quick_questionnaire_add_meta_boxes');
-add_action('save_post_quick_questionnaire', 'quick_questionnaire_save_post', 10, 3);
+add_action('init', 'easy_exercise_register_my_content_types');
+add_action('wp_enqueue_scripts', 'easy_exercise_add_plugin_scripts');
+add_filter('the_content', 'easy_exercise_filter_the_content');
+add_filter('the_excerpt', 'easy_exercise_filter_the_content');
+add_action('wp_ajax_nopriv_easy_exercise_check', 'easy_exercise_check');
+add_action('wp_ajax_easy_exercise_check', 'easy_exercise_check');
+add_action('wp_ajax_nopriv_easy_exercise_show', 'easy_exercise_show');
+add_action('wp_ajax_easy_exercise_show', 'easy_exercise_show');
+add_action('add_meta_boxes', 'easy_exercise_add_meta_boxes');
+add_action('save_post_easy_exercise', 'easy_exercise_save_post', 10, 3);
 
-register_activation_hook(__FILE__, 'quick_questionnaire_activation');
-register_deactivation_hook(__FILE__, 'quick_questionnaire_deactivation');
+register_activation_hook(__FILE__, 'easy_exercise_activation');
+register_deactivation_hook(__FILE__, 'easy_exercise_deactivation');

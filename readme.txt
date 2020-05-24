@@ -64,13 +64,13 @@ The answers are displayed as checkboxes.
 
 1. Upload the plugin files to the `/wp-content/plugins/plugin-name` directory, or install the plugin through the WordPress plugins screen directly.
 2. Activate the plugin through the 'Plugins' screen in WordPress
-3. Click on the new menu item "Quick Questionnaire" to create easy exercises
+3. Click on the new menu item "Easy Exercise" to create easy exercises
 
 == Frequently Asked Questions ==
 
 = How can I change the look of the exercise? =
 
-Just override the classes you see in the quick_questionnaire.css file.
+Just override the classes you see in the easy_exercise.css file.
 
 == Screenshots ==
 
