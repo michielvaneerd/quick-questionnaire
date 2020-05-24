@@ -23,7 +23,11 @@ function easy_exercise_register_my_content_types() {
     'rewrite' => array('slug' => 'easy_exercises'),
     'public' => true,
     'has_archive' => true,
-    'show_in_rest' => true
+    'show_in_rest' => true,
+    // Note that 'custom-fields' is necessary, because otherwise
+    // this post type doesn't allow meta in panel
+    // https://github.com/WordPress/gutenberg/issues/17018
+    'supports' => ['title', 'editor', 'custom-fields']
   ));
 
 }
