@@ -20,7 +20,7 @@ function easy_exercise_register_my_content_types() {
       'add_new_item' => __('Add New Easy Exercise', 'easy_exercise'),
       'edit_item' => __('Edit Easy Exercise', 'easy_exercise'),
     ),
-    'rewrite' => array('slug' => 'easy_exercises'),
+    'rewrite' => array('slug' => 'easy-exercises'),
     'public' => true,
     'has_archive' => true,
     'show_in_rest' => true,
@@ -212,6 +212,8 @@ function easy_exercise_json_encode($value) {
 }
 
 function easy_exercise_save_post($post_id, $post, $update) {
+
+  $separator = defined('EASY_EXERCISE_SEPARATOR') ? EASY_EXERCISE_SEPARATOR : '|';
   
   // $update is false on first save for new posts, maybe then we can have a shortcut?
   //if (!$update) return;
@@ -257,7 +259,7 @@ function easy_exercise_save_post($post_id, $post, $update) {
             break;
             default:
               // So also the text answer type!
-              $possibleAnswers = array_map('trim', explode('|', $answers));
+              $possibleAnswers = array_map('trim', explode($separator, $answers));
             break;
           }
           

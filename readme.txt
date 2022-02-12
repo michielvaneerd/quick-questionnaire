@@ -72,6 +72,10 @@ The answers are displayed as checkboxes.
 
 Just override the classes you see in the easy_exercise.css file.
 
+= Change the options separator =
+
+By default the `|` is used to separate the radio and checkbox options, but you can override this by Defining the `EASY_EXERCISE_SEPARATOR` constant in wp-config.php.
+
 == Screenshots ==
 
 1. Single select radio boxes
