@@ -2,7 +2,7 @@
 Contributors: michielve
 Tags: exercise, practice, test
 Requires at least: 3.0.1
-Tested up to: 5.4.1
+Tested up to: 5.9
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -84,6 +84,12 @@ By default the `|` is used to separate the radio and checkbox options, but you c
 4. Edit the exercise in the editor is simple
 
 == Changelog ==
+
+= 1.19 =
+* Override answer separator by defining the EASY_EXERCISE_SEPARATOR constant
+* New `itext` option as a case insensitive textbox
+* Wrap question inside span
+* Removed jQuery dependency
 
 = 1.18 =
 * Renamed to Easy Exercise everywhere

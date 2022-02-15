@@ -11,20 +11,20 @@
   color:crimson;
 }
 
-.easy_exercise-list .easy_exercise-goodquestion:after,
+/* .easy_exercise-list .easy_exercise-goodquestion:after,
 .easy_exercise-list .easy_exercise-wrongquestion:after {
   position: absolute;
   right: 0;
   top: 0;
-}
+} */
 
-.easy_exercise-list .easy_exercise-goodquestion:after {
+/* .easy_exercise-list .easy_exercise-goodquestion:after {
   content: "\2714";
 }
 
 .easy_exercise-list .easy_exercise-wrongquestion:after {
   content: "\2718";
-}
+} */
 
 .easy_exercise_input_wrapper label {
   display:block;
@@ -40,4 +40,26 @@
 
 .easy_exercise_checkbox, .easy_exercise_radio {
   margin-right:1rem;
+}
+
+/* .easy_exercise-list li > span:before {
+  content: "";
+  width:1rem;
+  display:inline-block;
+} */
+
+.easy_exercise-list li > span {
+  font-weight: bold;
+}
+
+.easy_exercise-list li.easy_exercise-goodquestion > span:after {
+  content: " \2714";
+}
+
+.easy_exercise-list li.easy_exercise-wrongquestion > span:after {
+  content: " \2718";
+}
+
+.easy_exercise-list input[type='text'], .easy_exercise-list button {
+  padding:.4rem;
 }

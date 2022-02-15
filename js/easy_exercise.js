@@ -1,4 +1,18 @@
-(function(win, $) {
+(function() {
+
+  function post(url, data) {
+    var formData = new FormData();
+    Object.keys(data).forEach(function(key) {
+      formData.append(key, data[key]);
+    });
+    return fetch(url, {
+      method: 'POST',
+      cache: 'no-cache',
+      body: formData
+    }).then(function(response) {
+      return response.json();
+    });
+  }
 
   var lists = document.querySelectorAll(".easy_exercise-list");
   var idCounter = 0;
@@ -15,21 +29,34 @@
       var type = possibleAnswers.options.type;
       switch (type) {
         case 'text':
+        case 'itext':
         case 'reg':
-          li.innerHTML = li.innerHTML + "<div class='easy_exercise_input_wrapper'><input class='easy_exercise_text' type='text' /></div>";
+          li.innerHTML = "<span>" + li.innerHTML + "</span><div class='easy_exercise_input_wrapper'><input class='easy_exercise_text' type='text' /></div>";
         break;
         case 'radio':
         case 'checkbox':
           var checkboxes = possibleAnswers.answers.map(function(answer) {
             idCounter += 1;
             var id = "a_" + idCounter;
-            var inputEl = $("<input class='easy_exercise_" + type + "' type='" + type + "' name='" + listItemDataId + "[]' id='" + id + "' />");
-            inputEl.attr('value', answer);
-            var labelEl = $("<label for='" + id + "'>").append(inputEl);
-            labelEl.append("<span>" + answer + "</span>");
-            return labelEl[0].outerHTML;
+            //var inputEl = $("<input class='easy_exercise_" + type + "' type='" + type + "' name='" + listItemDataId + "[]' id='" + id + "' />");
+            //inputEl.attr('value', answer);
+            //var labelEl = $("<label for='" + id + "'>").append(inputEl);
+            //labelEl.append("<span>" + answer + "</span>");
+            var inputEl = document.createElement("input");
+            inputEl.className = "easy_exercise_" + type;
+            inputEl.setAttribute("type", type);
+            inputEl.setAttribute("name", listItemDataId + "[]");
+            inputEl.id = id;
+            inputEl.value = answer;
+            var labelEl = document.createElement("label");
+            labelEl.setAttribute("for", id);
+            labelEl.appendChild(inputEl);
+            var spanEl = document.createElement("span");
+            spanEl.appendChild(document.createTextNode(answer));
+            labelEl.appendChild(spanEl);
+            return labelEl.outerHTML;
           });
-          li.innerHTML = li.innerHTML + "<div class='easy_exercise_input_wrapper'>" + checkboxes.join("\n") + "</div>";
+          li.innerHTML = "<span>" + li.innerHTML + "</span><div class='easy_exercise_input_wrapper'>" + checkboxes.join("\n") + "</div>";
         break;
       }
     });
@@ -89,12 +116,12 @@
         
       });
 
-      $.post(my_ajax_obj.ajax_url, {
+      post(my_ajax_obj.ajax_url, {
         _ajax_nonce: my_ajax_obj.nonce,
         action: "easy_exercise_check",
         answers: JSON.stringify(givenAnswers),
         post_id: EASY_EXERCISE_POST_ID
-      }, function(data) {
+      }).then(function(data) {
         buttonCheck.disabled = false;
         buttonCheck.className = "";
         for (var questionId in data) {
@@ -102,6 +129,9 @@
           var textInput = li.querySelector("input[type='text']");
           li.className = data[questionId] ? "easy_exercise-goodquestion" : "easy_exercise-wrongquestion";
         }
+      }).catch(function(error) {
+        console.log(error);
+        alert(JSON.stringify(error));
       });
 
     };
@@ -121,37 +151,41 @@
       buttonGetAnswers.onclick = function() {
         buttonGetAnswers.disabled = true;
         buttonGetAnswers.className = "easy_exercise_in_request";
-        $.post(my_ajax_obj.ajax_url, {
+        post(my_ajax_obj.ajax_url, {
           _ajax_nonce: my_ajax_obj.nonce,
           action: "easy_exercise_show",
           list: listId,
           post_id: EASY_EXERCISE_POST_ID
-        }, function(data) {
-          buttonGetAnswers.disabled = false;
-          buttonGetAnswers.className = "";
-          if ('success' in data && data.success === false) {
-            alert('Not allowed');
-            return;
-          }
-          var list = document.querySelector("[data-easy_exercise-list-id='" + listId + "']");
-          Object.keys(data).forEach(function(listItemId) {
-            var listItemInfo = data[listItemId];
-            var listItem = list.querySelector("li[data-easy_exercise-item-id='" + listItemId + "']");
-            switch (listItemInfo.type) {
-              case 'text':
-                listItem.querySelector("input[type='text']").value = listItemInfo.answers.join(', ');
-              break;
-              case 'reg':
-                listItem.querySelector("input[type='text']").value = listItemInfo.answers;
-              break;
-              default:
-              Array.prototype.forEach.call(listItem.querySelectorAll('input'), function(input) {
-                input.checked = listItemInfo.answers.indexOf(input.value) !== -1;
-              });
-              break;
-            }
-          });
+        }).then(function(data) {
           
+            buttonGetAnswers.disabled = false;
+            buttonGetAnswers.className = "";
+            if ('success' in data && data.success === false) {
+              alert('Not allowed');
+              return;
+            }
+            var list = document.querySelector("[data-easy_exercise-list-id='" + listId + "']");
+            Object.keys(data).forEach(function(listItemId) {
+              var listItemInfo = data[listItemId];
+              var listItem = list.querySelector("li[data-easy_exercise-item-id='" + listItemId + "']");
+              switch (listItemInfo.type) {
+                case 'text':
+                case 'itext':
+                  listItem.querySelector("input[type='text']").value = listItemInfo.answers.join(', ');
+                break;
+                case 'reg':
+                  listItem.querySelector("input[type='text']").value = listItemInfo.answers;
+                break;
+                default:
+                Array.prototype.forEach.call(listItem.querySelectorAll('input'), function(input) {
+                  input.checked = listItemInfo.answers.indexOf(input.value) !== -1;
+                });
+                break;
+              }
+            });          
+        }).catch(function(error) {
+          console.log(error);
+          alert(JSON.stringify(error));
         });
       };
       buttonDiv.appendChild(buttonGetAnswers);
@@ -176,4 +210,4 @@
     }
   };
 
-}(this, jQuery));
+}());

@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Easy Exercise
-Version: 1.18
+Version: 1.19
 Description: Create simple exercises directly in the editor
 Text Domain: easy_exercise
 Author: Michiel van Eerd
@@ -41,7 +41,7 @@ function easy_exercise_add_plugin_scripts() {
 
   if (is_single() && get_post_type() === 'easy_exercise') {
 
-    wp_enqueue_script('easy_exercise', plugin_dir_url(__FILE__) . 'js/easy_exercise.js', array('jquery'), '1.0.0', true);
+    wp_enqueue_script('easy_exercise', plugin_dir_url(__FILE__) . 'js/easy_exercise.js', null, '1.0.0', true);
     wp_enqueue_style('easy_exercise_style', plugin_dir_url(__FILE__) . 'css/easy_exercise.css');
     
     wp_localize_script('easy_exercise', 'my_ajax_obj', array(
@@ -112,6 +112,13 @@ function easy_exercise_check_shared($post_id, $postedAnswers) {
           $results[$questionId] = true;
         } elseif ($type === 'text' && is_string($postedListAnswers[$questionId])) {
           if (in_array($postedListAnswers[$questionId], $goodAnswer)) {
+            $results[$questionId] = true;
+          }
+        } elseif ($type === 'itext' && is_string($postedListAnswers[$questionId])) {
+          $goodAnswerLowerCase = array_map(function($a) {
+            return strtolower($a);
+          }, $goodAnswer);
+          if (in_array(strtolower($postedListAnswers[$questionId]), $goodAnswerLowerCase)) {
             $results[$questionId] = true;
           }
         } elseif (count($goodAnswer) == count($postedListAnswers[$questionId])) {
@@ -239,7 +246,7 @@ function easy_exercise_save_post($post_id, $post, $update) {
       foreach ($listItems as $listItem) {
         $innerHTML = easy_exercise_DOMinnerHTML($listItem);
         $matches = null;
-        if (preg_match("/{(reg|text|radio|checkbox){([^}]+)}}/", $innerHTML, $matches)) {
+        if (preg_match("/{(reg|text|itext|radio|checkbox){([^}]+)}}/", $innerHTML, $matches)) {
           $answerType = $matches[1]; // empty or filled
           $answers = trim($matches[2]);
           $listItemId += 1;
@@ -286,11 +293,11 @@ function easy_exercise_save_post($post_id, $post, $update) {
               'answers' => array()
             );
             foreach ($possibleAnswers as $possibleAnswer) {
-              if (strpos($possibleAnswer, '*') !== false || $answerType === 'text') {
+              if (strpos($possibleAnswer, '*') !== false || in_array($answerType, ['text', 'itext'])) {
                 $possibleAnswer = trim(str_replace('*', '', $possibleAnswer));
                 $goodAnswers[$listId][$listItemId]['answers'][] = $possibleAnswer;
               }
-              if ($answerType !== 'text') {
+              if (!in_array($answerType, ['text', 'itext'])) {
                 $answers2send[$listItemId]['answers'][] = $possibleAnswer;
               }
             }
