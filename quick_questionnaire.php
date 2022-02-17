@@ -8,19 +8,21 @@ Author: Michiel van Eerd
 Author URI: http://www.michielvaneerd.nl
 License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
-Domain Path: /languages
 */
+
+define('MY_QQ_PLUGIN_NAME', 'Quick Questionnaire');
+define('MY_QQ_POST_TYPE', 'quick-questionnaire');
 
 function easy_exercise_register_my_content_types() {
 
-  register_post_type('easy_exercise', array(
+  register_post_type(MY_QQ_POST_TYPE, array(
     'labels' => array(
-      'name' => __('Easy Exercise', 'easy_exercise'),
-      'singular_name' => __('Easy Exercise', 'easy_exercise'),
-      'add_new_item' => __('Add New Easy Exercise', 'easy_exercise'),
-      'edit_item' => __('Edit Easy Exercise', 'easy_exercise'),
+      'name' => MY_QQ_PLUGIN_NAME,
+      'singular_name' => MY_QQ_PLUGIN_NAME,
+      //'add_new_item' => __('Add New Easy Exercise', 'easy_exercise'),
+      //'edit_item' => __('Edit Easy Exercise', 'easy_exercise'),
     ),
-    'rewrite' => array('slug' => 'easy-exercises'),
+    //'rewrite' => array('slug' => 'quick-questionnaires'),
     'public' => true,
     'has_archive' => true,
     'show_in_rest' => true,
@@ -39,7 +41,7 @@ at a single questionnaire.
 */
 function easy_exercise_add_plugin_scripts() {
 
-  if (is_single() && get_post_type() === 'easy_exercise') {
+  if (is_singular() && get_post_type() === MY_QQ_POST_TYPE) {
 
     wp_enqueue_script('easy_exercise', plugin_dir_url(__FILE__) . 'js/easy_exercise.js', null, '1.0.0', true);
     wp_enqueue_style('easy_exercise_style', plugin_dir_url(__FILE__) . 'css/easy_exercise.css');
@@ -48,9 +50,9 @@ function easy_exercise_add_plugin_scripts() {
       'ajax_url' => admin_url('admin-ajax.php'),
       'nonce' => wp_create_nonce('easy_exercise_check'),
       'L' => array(
-        'show' => __('Show', 'easy_exercise'),
-        'check' => __('Check', 'easy_exercise'),
-        'reset' => __('Reset', 'easy_exercise'),
+        'show' => 'Show',
+        'check' => 'Check',
+        'reset' => 'Reset'
       )
     ));
   }
@@ -180,13 +182,13 @@ function easy_exercise_filter_the_content($content) {
     return $content;
   }
 
-  if (get_post_type() === 'easy_exercise') {
+  if (get_post_type() === MY_QQ_POST_TYPE) {
 
     $post_id = get_the_ID();
 
     $parsedContent = get_post_meta($post_id, '_qq_content', true);
 
-    if (is_single()) {
+    if (is_singular()()) {
       $answers2send = get_post_meta($post_id, '_qq_possible_answers', true);
       
       $showButton = get_post_meta($post_id, '_qq_enable_show_btn', true) === 'Y'
@@ -237,12 +239,14 @@ function easy_exercise_save_post($post_id, $post, $update) {
   if ($doc->loadHTML('<?xml encoding="UTF-8">' . $content)) {
   //if ($doc->loadHTML(mb_convert_encoding($content, 'HTML-ENTITIES', 'UTF-8'))) {
     $xpath = new DOMXPath($doc);
-    $lists = $xpath->query('//ol | //ul');
+    $lists = $xpath->query("//ol[contains(@class, 'quick-questionnaire-enabled')] | //ul[contains(@class, 'quick-questionnaire-enabled')]");
     $listId = 0;
     $listItemId = 0;
     foreach ($lists as $list) {
       $listItems = $list->getElementsByTagName('li');
       $expressionFound = false;
+      $classNames = [];
+      if (!empty($list->getAttribute('class'))) $classNames[] = $list->getAttribute('class');
       foreach ($listItems as $listItem) {
         $innerHTML = easy_exercise_DOMinnerHTML($listItem);
         $matches = null;
@@ -254,7 +258,7 @@ function easy_exercise_save_post($post_id, $post, $update) {
             $expressionFound = true;
             $listId += 1;
             $list->setAttribute('data-easy_exercise-list-id', $listId);
-            $list->setAttribute('class', 'easy_exercise-list');
+            $classNames[] = 'easy_exercise-list';
             $goodAnswers[$listId] = array();
           }
           $innerHTML = str_replace($matches[0], '', $innerHTML);
@@ -310,6 +314,7 @@ function easy_exercise_save_post($post_id, $post, $update) {
           $list->replaceChild($newListItem, $listItem);
         }
       }
+      $list->setAttribute('class', implode(' ', $classNames));
     }
     $bodies = $doc->getElementsByTagName('body');
     if ($bodies->length > 0) {
@@ -344,18 +349,18 @@ function easy_exercise_deactivation() {
   flush_rewrite_rules();
 }
 
-function easy_exercise_load_plugin_textdomain() {
-  load_plugin_textdomain('easy_exercise', FALSE,
-    basename(dirname(__FILE__)) . '/languages/');
-}
-add_action('plugins_loaded', 'easy_exercise_load_plugin_textdomain');
+// function easy_exercise_load_plugin_textdomain() {
+//   load_plugin_textdomain('easy_exercise', FALSE,
+//     basename(dirname(__FILE__)) . '/languages/');
+// }
+// add_action('plugins_loaded', 'easy_exercise_load_plugin_textdomain');
 
 // Disable wptexturize for this post type
 // Because ellipsis gets f*cked up with utf8_decode...
 function easy_exercise_run_wptexturize($run_texturize) {
   global $post;
   if (!empty($post)) {
-    return $post->post_type !== 'easy_exercise';
+    return $post->post_type !== MY_QQ_POST_TYPE;
   }
   return true;
 }
@@ -364,13 +369,13 @@ add_filter('run_wptexturize', 'easy_exercise_run_wptexturize');
 add_action('rest_api_init', function() {
 
   // Adding answers array to default WP endpoint of easy_exercise
-  register_rest_field('easy_exercise', 'qq_answers', array(
+  register_rest_field(MY_QQ_POST_TYPE, 'qq_answers', array(
     'get_callback' => function($object) {
       return json_decode(get_post_meta($object['id'], '_qq_possible_answers', true));
     }
   ));
 
-  register_rest_field('easy_exercise', 'qq_correct_answers', array(
+  register_rest_field(MY_QQ_POST_TYPE, 'qq_correct_answers', array(
     'get_callback' => function($object) {
       if (get_post_meta($object['id'], '_qq_enable_show_btn', true) === 'Y') {
         return json_decode(get_post_meta($object['id'], '_qq_good_answers', true));
@@ -381,7 +386,7 @@ add_action('rest_api_init', function() {
   ));
 
   // POST endpoint - client sends given answers and server sends back results
-  register_rest_route('qq/v1', '/easy_exercise/(?<id>\d+)', array(
+  register_rest_route('qq/v1', '/' . MY_QQ_POST_TYPE . '/(?<id>\d+)', array(
     array(
       'methods' => WP_REST_Server::CREATABLE,
       'callback' => function(WP_REST_Request $request) {
@@ -413,7 +418,7 @@ add_action('rest_api_init', function() {
   // GET endpoint - client wants to get correct answers (can be ON/OFF per post)
   // This one is not needed anymore, because we now send the correct answers
   // in the default WP queries.
-  register_rest_route('qq/v1', '/easy_exercise/(?<id>\d+)/(?<listid>\d+)', array(
+  register_rest_route('qq/v1', '/' . MY_QQ_POST_TYPE . '/(?<id>\d+)/(?<listid>\d+)', array(
     'methods' => WP_REST_Server::READABLE,
     'callback' => function(WP_REST_Request $request) {
       $post_id = $request['id'];
@@ -441,8 +446,21 @@ add_action('wp_ajax_nopriv_easy_exercise_check', 'easy_exercise_check');
 add_action('wp_ajax_easy_exercise_check', 'easy_exercise_check');
 add_action('wp_ajax_nopriv_easy_exercise_show', 'easy_exercise_show');
 add_action('wp_ajax_easy_exercise_show', 'easy_exercise_show');
-add_action('add_meta_boxes', 'easy_exercise_add_meta_boxes');
-add_action('save_post_easy_exercise', 'easy_exercise_save_post', 10, 3);
+//add_action('add_meta_boxes', 'easy_exercise_add_meta_boxes');
+add_action('save_post_' . MY_QQ_POST_TYPE, 'easy_exercise_save_post', 10, 3);
+
+add_action('enqueue_block_editor_assets', function() {
+  if (get_post_type() === MY_QQ_POST_TYPE) {
+    $script_assets = require(plugin_dir_path( __FILE__ ) . 'build/index.asset.php');
+    wp_enqueue_script(
+      'quick-questionnaire-gutenberg',
+      plugin_dir_url( __FILE__ ) . 'build/index.js',
+      $script_assets['dependencies'],
+      $script_assets['version']
+    );
+  }
+});
 
 register_activation_hook(__FILE__, 'easy_exercise_activation');
 register_deactivation_hook(__FILE__, 'easy_exercise_deactivation');
+

@@ -14,7 +14,7 @@
     });
   }
 
-  var lists = document.querySelectorAll(".easy_exercise-list");
+  var lists = document.querySelectorAll(".quick-questionnaire-enabled");
   var idCounter = 0;
 
   Array.prototype.forEach.call(lists, function(list) {
@@ -38,10 +38,6 @@
           var checkboxes = possibleAnswers.answers.map(function(answer) {
             idCounter += 1;
             var id = "a_" + idCounter;
-            //var inputEl = $("<input class='easy_exercise_" + type + "' type='" + type + "' name='" + listItemDataId + "[]' id='" + id + "' />");
-            //inputEl.attr('value', answer);
-            //var labelEl = $("<label for='" + id + "'>").append(inputEl);
-            //labelEl.append("<span>" + answer + "</span>");
             var inputEl = document.createElement("input");
             inputEl.className = "easy_exercise_" + type;
             inputEl.setAttribute("type", type);
