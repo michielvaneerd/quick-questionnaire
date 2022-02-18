@@ -19,7 +19,7 @@
 
   Array.prototype.forEach.call(lists, function(list) {
 
-    var listId = list.getAttribute("data-qq-id");
+    var listId = list.dataset.qqId;
 
     var listItems = list.querySelectorAll("li[data-qq-item-id]");
     
@@ -141,7 +141,7 @@
     };
     buttonDiv.appendChild(buttonReset);
 
-    if (QQ_SHOW_BUTTON) {
+    if (list.dataset.qqShowButton) {
       var buttonGetAnswers = document.createElement("button");
       buttonGetAnswers.appendChild(document.createTextNode(my_ajax_obj.L.show));
       buttonGetAnswers.onclick = function() {

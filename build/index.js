@@ -32,6 +32,16 @@ module.exports = window["wp"]["compose"];
 
 /***/ }),
 
+/***/ "@wordpress/core-data":
+/*!**********************************!*\
+  !*** external ["wp","coreData"] ***!
+  \**********************************/
+/***/ (function(module) {
+
+module.exports = window["wp"]["coreData"];
+
+/***/ }),
+
 /***/ "@wordpress/element":
 /*!*********************************!*\
   !*** external ["wp","element"] ***!
@@ -168,6 +178,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_4__);
 /* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @wordpress/components */ "@wordpress/components");
 /* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var _wordpress_core_data__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @wordpress/core-data */ "@wordpress/core-data");
+/* harmony import */ var _wordpress_core_data__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(_wordpress_core_data__WEBPACK_IMPORTED_MODULE_6__);
 
 
 
@@ -181,13 +193,17 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const blockName = 'core/list';
+
+const blockName = 'core/list'; // Enable some attributes
 
 function setSidebarEnableAttribute(settings, name) {
   if (name !== blockName) return settings;
   return Object.assign({}, settings, {
     attributes: Object.assign({}, settings.attributes, {
       enableAttribute: {
+        type: 'boolean'
+      },
+      showButtonAttribute: {
         type: 'boolean'
       },
       qqId: {
@@ -197,7 +213,8 @@ function setSidebarEnableAttribute(settings, name) {
   });
 }
 
-(0,_wordpress_hooks__WEBPACK_IMPORTED_MODULE_2__.addFilter)('blocks.registerBlockType', 'quick-questionnaire/set-sidebar-enable-attribute', setSidebarEnableAttribute);
+(0,_wordpress_hooks__WEBPACK_IMPORTED_MODULE_2__.addFilter)('blocks.registerBlockType', 'quick-questionnaire/set-sidebar-enable-attribute', setSidebarEnableAttribute); // Add sidebar controls for the attributes
+
 const withSidebarEnable = (0,_wordpress_compose__WEBPACK_IMPORTED_MODULE_3__.createHigherOrderComponent)(BlockEdit => {
   return props => {
     if (props.name !== blockName) {
@@ -210,8 +227,16 @@ const withSidebarEnable = (0,_wordpress_compose__WEBPACK_IMPORTED_MODULE_3__.cre
     } = props;
     const {
       enableAttribute,
-      qqId
-    } = attributes;
+      showButtonAttribute
+    } = attributes; // const [ meta, setMeta ] = useEntityProp('postType', 'quick-questionnaire', 'meta');
+    // let metaValue = null;
+    // try {
+    //     metaValue = JSON.parse(meta['_qq_enable_show_btn']) || {};
+    // } catch (ex) {
+    //     console.error(ex);
+    //     metaValue = {};
+    // }
+
     return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.Fragment, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.Fragment, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockEdit, props), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_4__.InspectorControls, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_5__.PanelBody, {
       title: "Quick Questionnaire"
     }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_5__.CheckboxControl, {
@@ -223,10 +248,21 @@ const withSidebarEnable = (0,_wordpress_compose__WEBPACK_IMPORTED_MODULE_3__.cre
           qqId: value ? props.clientId : null
         });
       }
+    }), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_5__.CheckboxControl, {
+      label: "Enable show button",
+      checked: showButtonAttribute,
+      onChange: value => {
+        //metaValue[qqId] = value;
+        //setMeta({ ...meta, _qq_enable_show_btn: JSON.stringify(metaValue) });
+        setAttributes({
+          showButtonAttribute: value
+        });
+      }
     })))));
   };
 }, 'withSidebarEnable');
-(0,_wordpress_hooks__WEBPACK_IMPORTED_MODULE_2__.addFilter)('editor.BlockEdit', 'quick-questionnaire/with-sidebar-enable', withSidebarEnable);
+(0,_wordpress_hooks__WEBPACK_IMPORTED_MODULE_2__.addFilter)('editor.BlockEdit', 'quick-questionnaire/with-sidebar-enable', withSidebarEnable); // Add className to block in editor.
+
 const withSidebarEnableProp = (0,_wordpress_compose__WEBPACK_IMPORTED_MODULE_3__.createHigherOrderComponent)(BlockListBlock => {
   return props => {
     if (props.name !== blockName) {
@@ -237,30 +273,42 @@ const withSidebarEnableProp = (0,_wordpress_compose__WEBPACK_IMPORTED_MODULE_3__
       attributes
     } = props;
     const {
-      enableAttribute
+      enableAttribute,
+      showButtonAttribute
     } = attributes;
+    let classNames = [];
+    if (enableAttribute) classNames.push('quick-questionnaire-enabled');
+    if (showButtonAttribute) classNames.push('quick-questionnaire-show-button');
 
-    if (enableAttribute) {
+    if (classNames.length > 0) {
       return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockListBlock, (0,_babel_runtime_helpers_extends__WEBPACK_IMPORTED_MODULE_0__["default"])({
-        className: "quick-questionnaire-enabled"
+        className: classNames.join(" ")
       }, props));
     } else {
       return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockListBlock, props);
     }
   };
 });
-(0,_wordpress_hooks__WEBPACK_IMPORTED_MODULE_2__.addFilter)('editor.BlockListBlock', 'quick-questionnaire/with-sidebar-enable-prop', withSidebarEnableProp);
+(0,_wordpress_hooks__WEBPACK_IMPORTED_MODULE_2__.addFilter)('editor.BlockListBlock', 'quick-questionnaire/with-sidebar-enable-prop', withSidebarEnableProp); // Add className to block in database
 
 const saveSidebarEnableAttribute = (extraProps, blockType, attributes) => {
   if (blockType.name === blockName) {
     const {
       enableAttribute,
+      showButtonAttribute,
       qqId
     } = attributes;
+    let classNames = [];
+    if (extraProps.className) classNames.push(extraProps.className);
+    if (enableAttribute) classNames.push('quick-questionnaire-enabled'); //if (showButtonAttribute) classNames.push('quick-questionnaire-show-button');
 
     if (enableAttribute) {
-      extraProps.className = (extraProps.className ? extraProps.className + ' ' : '') + 'quick-questionnaire-enabled';
+      extraProps.className = classNames.join(" ");
       extraProps['data-qq-id'] = qqId;
+
+      if (showButtonAttribute) {
+        extraProps['data-qq-show-button'] = true;
+      }
     }
   }
 

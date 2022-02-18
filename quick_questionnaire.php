@@ -29,6 +29,16 @@ function qq_register_my_content_types() {
     'supports' => ['title', 'editor', 'custom-fields']
   ));
 
+  register_post_meta(MY_QQ_POST_TYPE,
+    '_qq_enable_show_btn', [
+      'show_in_rest' => true,
+      'single' => true,
+      'type' => 'string',
+      'auth_callback' => function() {
+        return current_user_can( 'edit_posts' );
+      }
+  ]);
+
 }
 
 
@@ -57,7 +67,8 @@ function qq_add_plugin_scripts() {
 }
 
 function qq_show_shared($post_id, $list_id = null) {
-  if (get_post_meta($post_id, '_qq_enable_show_btn', true) !== 'Y') {
+  $showButtons = json_decode(get_post_meta($post_id, '_qq_enable_show_btn', true), true);
+  if (empty($showButtons) || !in_array($list_id, $showButtons)) {
     return false;
   }
   $goodAnswers = json_decode(get_post_meta($post_id, '_qq_good_answers', true), true);
@@ -199,20 +210,6 @@ function qq_filter_the_content($content) {
   return $content;
 }
 
-function qq_meta_box_html($post) {
-  $value = get_post_meta($post->ID, '_qq_enable_show_btn', true);
-  ?>
-  <label><input type="checkbox"
-    <?php checked($value, 'Y'); ?>
-    name="qq_enable_show_btn" value="Y">Enable show button</label>
-  <?php
-}
-
-function qq_add_meta_boxes() {
-  add_meta_box('qq_meta_box', 'QQ Settings',
-    'qq_meta_box_html', 'qq', 'side');
-}
-
 function qq_json_encode($value) {
   return json_encode($value, JSON_UNESCAPED_UNICODE);
 }
@@ -226,6 +223,7 @@ function qq_save_post($post_id, $post, $update) {
 
   $content = apply_filters('the_content', get_post_field('post_content', $post_id));
 
+  $showButtons = [];
   $goodAnswers = array(); // listid => array(listItemId => string|array) (only good answers)
   $answers2send = array(); // to send to client.
   $content2save = '';
@@ -241,6 +239,9 @@ function qq_save_post($post_id, $post, $update) {
     foreach ($lists as $list) {
       $listId = $list->getAttribute('data-qq-id');
       $listItems = $list->getElementsByTagName('li');
+      if (strpos($list->getAttribute('class'), 'quick-questionnaire-show-button') !== false) {
+        $showButtons[] = $listId;
+      }
       $expressionFound = false;
       $classNames = [];
       if (!empty($list->getAttribute('class'))) $classNames[] = $list->getAttribute('class');
@@ -325,12 +326,7 @@ function qq_save_post($post_id, $post, $update) {
   update_post_meta($post_id, '_qq_content', $content2save);
   update_post_meta($post_id, '_qq_good_answers', qq_json_encode($goodAnswers));
   update_post_meta($post_id, '_qq_possible_answers', qq_json_encode($answers2send));
-
-  if (!empty($_POST['qq_enable_show_btn'])) {
-    update_post_meta($post_id, '_qq_enable_show_btn', 'Y');
-  } else {
-    delete_post_meta($post_id, '_qq_enable_show_btn');
-  }
+  update_post_meta($post_id, '_qq_enable_show_btn', qq_json_encode($showButtons));
 
 }
 
