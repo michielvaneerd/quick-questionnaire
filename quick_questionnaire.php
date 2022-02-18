@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Quick Questionnaire
-Version: 1.0
+Version: 2.0
 Description: Create simple questionnaires directly in the editor
 Author: Michiel van Eerd
 Author URI: http://www.michielvaneerd.nl
