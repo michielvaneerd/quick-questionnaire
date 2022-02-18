@@ -1,6 +1,8 @@
 /**
  * See for source:
  * https://github.com/MarieComet/core-block-custom-attributes
+ * https://developer.wordpress.org/block-editor/how-to-guides/plugin-sidebar-0/
+ * https://awhitepixel.com/blog/how-to-add-post-meta-fields-to-gutenberg-document-sidebar/
  */
 
 import { addFilter } from '@wordpress/hooks';
@@ -14,7 +16,8 @@ function setSidebarEnableAttribute(settings, name) {
     if (name !== blockName) return settings;
     return Object.assign({}, settings, {
         attributes: Object.assign({}, settings.attributes, {
-            enableAttribute: { type: 'boolean' }
+            enableAttribute: { type: 'boolean' },
+            qqId: { type: 'string' }
         }),
     });
 }
@@ -34,7 +37,7 @@ const withSidebarEnable = createHigherOrderComponent((BlockEdit) => {
         }
 
         const { attributes, setAttributes } = props;
-        const { enableAttribute } = attributes;
+        const { enableAttribute, qqId } = attributes;
 
         return <>
             <Fragment>
@@ -43,7 +46,8 @@ const withSidebarEnable = createHigherOrderComponent((BlockEdit) => {
                 <PanelBody title="Quick Questionnaire">
                     <CheckboxControl label="Enable" checked={enableAttribute} onChange={(value) => {
                         setAttributes({
-                            enableAttribute: value
+                            enableAttribute: value,
+                            qqId: value ? props.clientId : null
                         });
                     }} />
                 </PanelBody>
@@ -83,9 +87,10 @@ addFilter(
 
 const saveSidebarEnableAttribute = (extraProps, blockType, attributes) => {
     if (blockType.name === blockName) {
-        const { enableAttribute } = attributes;
+        const { enableAttribute, qqId } = attributes;
         if (enableAttribute) {
-            extraProps.className = (extraProps.className ? (extraProps.className + ' ') : '') + 'quick-questionnaire-enabled';
+            extraProps.className = (extraProps.className ? (extraProps.className + ' ') : '') + ('quick-questionnaire-enabled');
+            extraProps['data-qq-id'] = qqId;
         }
     }
     return extraProps;
@@ -96,3 +101,17 @@ addFilter(
     'quick-questionnaire/save-sidebar-enable-attribute',
     saveSidebarEnableAttribute
 );
+
+// const saveChangedContent = (element, blockType, attributes) => {
+//     if (blockType.name === blockName) {
+//         console.log(element);
+//         console.log(attributes.values);
+//     }
+//     return element;
+// };
+
+// addFilter(
+//     'blocks.getSaveElement',
+//     'quick-questionnaire/save-changed-content',
+//     saveChangedContent
+// );

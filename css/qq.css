@@ -1,0 +1,65 @@
+.qq-list li {
+  position: relative;
+  margin-bottom:2rem;
+}
+
+.qq-list .qq-goodquestion {
+  color:seagreen;
+}
+
+.qq-list .qq-wrongquestion {
+  color:crimson;
+}
+
+/* .qq-list .qq-goodquestion:after,
+.qq-list .qq-wrongquestion:after {
+  position: absolute;
+  right: 0;
+  top: 0;
+} */
+
+/* .qq-list .qq-goodquestion:after {
+  content: "\2714";
+}
+
+.qq-list .qq-wrongquestion:after {
+  content: "\2718";
+} */
+
+.qq-input-wrapper label {
+  display:block;
+}
+
+.qq-input-wrapper {
+  margin-top: 1rem;
+}
+
+.qq-button-wrapper button {
+  margin-right:1rem;
+}
+
+.qq-checkbox, .qq-radio {
+  margin-right:1rem;
+}
+
+/* .qq-list li > span:before {
+  content: "";
+  width:1rem;
+  display:inline-block;
+} */
+
+.qq-list li > span {
+  font-weight: bold;
+}
+
+.qq-list li.qq-goodquestion > span:after {
+  content: " \2714";
+}
+
+.qq-list li.qq-wrongquestion > span:after {
+  content: " \2718";
+}
+
+.qq-list input[type='text'], .qq-list button {
+  padding:.4rem;
+}

@@ -19,19 +19,19 @@
 
   Array.prototype.forEach.call(lists, function(list) {
 
-    var listId = list.getAttribute("data-easy_exercise-list-id");
+    var listId = list.getAttribute("data-qq-id");
 
-    var listItems = list.querySelectorAll("li[data-easy_exercise-item-id]");
+    var listItems = list.querySelectorAll("li[data-qq-item-id]");
     
     Array.prototype.forEach.call(listItems, function(li) {
-      var listItemDataId = li.getAttribute("data-easy_exercise-item-id");
-      var possibleAnswers = EASY_EXERCISE_ANSWERS[listItemDataId];
+      var listItemDataId = li.getAttribute("data-qq-item-id");
+      var possibleAnswers = QQ_ANSWERS[listItemDataId];
       var type = possibleAnswers.options.type;
       switch (type) {
         case 'text':
         case 'itext':
         case 'reg':
-          li.innerHTML = "<span>" + li.innerHTML + "</span><div class='easy_exercise_input_wrapper'><input class='easy_exercise_text' type='text' /></div>";
+          li.innerHTML = "<span>" + li.innerHTML + "</span><div class='qq-input-wrapper'><input class='qq-text' type='text' /></div>";
         break;
         case 'radio':
         case 'checkbox':
@@ -39,7 +39,7 @@
             idCounter += 1;
             var id = "a_" + idCounter;
             var inputEl = document.createElement("input");
-            inputEl.className = "easy_exercise_" + type;
+            inputEl.className = "qq-" + type;
             inputEl.setAttribute("type", type);
             inputEl.setAttribute("name", listItemDataId + "[]");
             inputEl.id = id;
@@ -52,18 +52,18 @@
             labelEl.appendChild(spanEl);
             return labelEl.outerHTML;
           });
-          li.innerHTML = "<span>" + li.innerHTML + "</span><div class='easy_exercise_input_wrapper'>" + checkboxes.join("\n") + "</div>";
+          li.innerHTML = "<span>" + li.innerHTML + "</span><div class='qq-input-wrapper'>" + checkboxes.join("\n") + "</div>";
         break;
       }
     });
 
     var buttonDiv = document.createElement("p");
-    buttonDiv.className = "easy_exercise-button-wrapper";
+    buttonDiv.className = "qq-button-wrapper";
     var buttonCheck = document.createElement("button");
     buttonCheck.onclick = function() {
 
       buttonCheck.disabled = true;
-      buttonCheck.className = "easy_exercise_in_request";
+      buttonCheck.className = "qq-in-request";
 
       var givenAnswers = {};
       givenAnswers[listId] = {};
@@ -72,17 +72,17 @@
       
       Array.prototype.forEach.call(listItems, function(li) {
         
-        var questionId = li.getAttribute("data-easy_exercise-item-id");
+        var questionId = li.getAttribute("data-qq-item-id");
 
-        var textInput = li.querySelector("input.easy_exercise_text");
+        var textInput = li.querySelector("input.qq-text");
         if (textInput) {
           givenAnswers[listId][questionId] = textInput.value;
           return;
         }
 
-        var radioInputs = li.querySelectorAll("input.easy_exercise_radio");
+        var radioInputs = li.querySelectorAll("input.qq-radio");
         if (radioInputs.length) {
-          var checkedRadioInput = li.querySelector("input.easy_exercise_radio:checked");
+          var checkedRadioInput = li.querySelector("input.qq-radio:checked");
           if (!(questionId in givenAnswers[listId])) {
             givenAnswers[listId][questionId] = [];
           }
@@ -94,9 +94,9 @@
           return;
         }
 
-        var checkboxInputs = li.querySelectorAll("input.easy_exercise_checkbox");
+        var checkboxInputs = li.querySelectorAll("input.qq-checkbox");
         if (checkboxInputs) {
-          var checkedCheckboxInputs = li.querySelectorAll("input.easy_exercise_checkbox:checked");
+          var checkedCheckboxInputs = li.querySelectorAll("input.qq-checkbox:checked");
           if (!(questionId in givenAnswers[listId])) {
             givenAnswers[listId][questionId] = [];
           }
@@ -114,16 +114,16 @@
 
       post(my_ajax_obj.ajax_url, {
         _ajax_nonce: my_ajax_obj.nonce,
-        action: "easy_exercise_check",
+        action: "qq_check",
         answers: JSON.stringify(givenAnswers),
-        post_id: EASY_EXERCISE_POST_ID
+        post_id: QQ_POST_ID
       }).then(function(data) {
         buttonCheck.disabled = false;
         buttonCheck.className = "";
         for (var questionId in data) {
-          var li = list.querySelector("li[data-easy_exercise-item-id='" + questionId + "']");
+          var li = list.querySelector("li[data-qq-item-id='" + questionId + "']");
           var textInput = li.querySelector("input[type='text']");
-          li.className = data[questionId] ? "easy_exercise-goodquestion" : "easy_exercise-wrongquestion";
+          li.className = data[questionId] ? "qq-goodquestion" : "qq-wrongquestion";
         }
       }).catch(function(error) {
         console.log(error);
@@ -141,17 +141,17 @@
     };
     buttonDiv.appendChild(buttonReset);
 
-    if (EASY_EXERCISE_SHOW_BUTTON) {
+    if (QQ_SHOW_BUTTON) {
       var buttonGetAnswers = document.createElement("button");
       buttonGetAnswers.appendChild(document.createTextNode(my_ajax_obj.L.show));
       buttonGetAnswers.onclick = function() {
         buttonGetAnswers.disabled = true;
-        buttonGetAnswers.className = "easy_exercise_in_request";
+        buttonGetAnswers.className = "qq-in-request";
         post(my_ajax_obj.ajax_url, {
           _ajax_nonce: my_ajax_obj.nonce,
-          action: "easy_exercise_show",
+          action: "qq_show",
           list: listId,
-          post_id: EASY_EXERCISE_POST_ID
+          post_id: QQ_POST_ID
         }).then(function(data) {
           
             buttonGetAnswers.disabled = false;
@@ -160,10 +160,10 @@
               alert('Not allowed');
               return;
             }
-            var list = document.querySelector("[data-easy_exercise-list-id='" + listId + "']");
+            var list = document.querySelector("[data-qq-id='" + listId + "']");
             Object.keys(data).forEach(function(listItemId) {
               var listItemInfo = data[listItemId];
-              var listItem = list.querySelector("li[data-easy_exercise-item-id='" + listItemId + "']");
+              var listItem = list.querySelector("li[data-qq-item-id='" + listItemId + "']");
               switch (listItemInfo.type) {
                 case 'text':
                 case 'itext':
@@ -192,11 +192,11 @@
   });
 
   var resetList = function(list, removeAnswers) {
-    Array.prototype.forEach.call(list.querySelectorAll(".easy_exercise-goodquestion, .easy_exercise-wrongquestion"), function(el) {
+    Array.prototype.forEach.call(list.querySelectorAll(".qq-goodquestion, .qq-wrongquestion"), function(el) {
       el.className = "";
     });
     if (removeAnswers) {
-      Array.prototype.forEach.call(list.querySelectorAll("input.easy_exercise_text, input.easy_exercise_checkbox, input.easy_exercise_radio"), function(input) {
+      Array.prototype.forEach.call(list.querySelectorAll("input.qq-text, input.qq-checkbox, input.qq-radio"), function(input) {
         if (input.type === 'text') {
           input.value = "";
         } else {

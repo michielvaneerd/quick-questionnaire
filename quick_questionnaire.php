@@ -1,9 +1,8 @@
 <?php
 /*
-Plugin Name: Easy Exercise
+Plugin Name: Quick Questionnaire
 Version: 1.19
-Description: Create simple exercises directly in the editor
-Text Domain: easy_exercise
+Description: Create simple questionnaires directly in the editor
 Author: Michiel van Eerd
 Author URI: http://www.michielvaneerd.nl
 License: GPL2
@@ -13,14 +12,12 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 define('MY_QQ_PLUGIN_NAME', 'Quick Questionnaire');
 define('MY_QQ_POST_TYPE', 'quick-questionnaire');
 
-function easy_exercise_register_my_content_types() {
+function qq_register_my_content_types() {
 
   register_post_type(MY_QQ_POST_TYPE, array(
     'labels' => array(
       'name' => MY_QQ_PLUGIN_NAME,
-      'singular_name' => MY_QQ_PLUGIN_NAME,
-      //'add_new_item' => __('Add New Easy Exercise', 'easy_exercise'),
-      //'edit_item' => __('Edit Easy Exercise', 'easy_exercise'),
+      'singular_name' => MY_QQ_PLUGIN_NAME
     ),
     //'rewrite' => array('slug' => 'quick-questionnaires'),
     'public' => true,
@@ -39,16 +36,16 @@ function easy_exercise_register_my_content_types() {
 Enqueue the plugin CSS and Javascript only when looking
 at a single questionnaire.
 */
-function easy_exercise_add_plugin_scripts() {
+function qq_add_plugin_scripts() {
 
   if (is_singular() && get_post_type() === MY_QQ_POST_TYPE) {
 
-    wp_enqueue_script('easy_exercise', plugin_dir_url(__FILE__) . 'js/easy_exercise.js', null, '1.0.0', true);
-    wp_enqueue_style('easy_exercise_style', plugin_dir_url(__FILE__) . 'css/easy_exercise.css');
+    wp_enqueue_script('qq', plugin_dir_url(__FILE__) . 'js/qq.js', null, '1.0.0', true);
+    wp_enqueue_style('qq_style', plugin_dir_url(__FILE__) . 'css/qq.css');
     
-    wp_localize_script('easy_exercise', 'my_ajax_obj', array(
+    wp_localize_script('qq', 'my_ajax_obj', array(
       'ajax_url' => admin_url('admin-ajax.php'),
-      'nonce' => wp_create_nonce('easy_exercise_check'),
+      'nonce' => wp_create_nonce('qq_check'),
       'L' => array(
         'show' => 'Show',
         'check' => 'Check',
@@ -59,7 +56,7 @@ function easy_exercise_add_plugin_scripts() {
 
 }
 
-function easy_exercise_show_shared($post_id, $list_id = null) {
+function qq_show_shared($post_id, $list_id = null) {
   if (get_post_meta($post_id, '_qq_enable_show_btn', true) !== 'Y') {
     return false;
   }
@@ -73,14 +70,14 @@ function easy_exercise_show_shared($post_id, $list_id = null) {
 /*
 Callback that is called from AJAX to show good answers.
 */
-function easy_exercise_show() {
+function qq_show() {
 
-  check_ajax_referer('easy_exercise_check');
+  check_ajax_referer('qq_check');
   
   $post_id = $_POST['post_id'];
   $list_id = $_POST['list'];
 
-  $result = easy_exercise_show_shared($post_id, $list_id);
+  $result = qq_show_shared($post_id, $list_id);
   if (!$result) {
     wp_send_json_error();
   }
@@ -91,7 +88,7 @@ function easy_exercise_show() {
 /**
  * Shared by both AJAX and POST from API.
  */
-function easy_exercise_check_shared($post_id, $postedAnswers) {
+function qq_check_shared($post_id, $postedAnswers) {
   $goodAnswers = json_decode(get_post_meta($post_id, '_qq_good_answers', true), true);
   $results = array();
 
@@ -144,14 +141,14 @@ function easy_exercise_check_shared($post_id, $postedAnswers) {
 /*
 Callback that is called from AJAX to check for good answers.
 */
-function easy_exercise_check() {
+function qq_check() {
   
-  check_ajax_referer('easy_exercise_check');
+  check_ajax_referer('qq_check');
 
   $post_id = $_POST['post_id'];
   $postedAnswers = json_decode(stripslashes($_POST['answers']), true); // listId => object(questionId => answer|answers)
 
-  $results = easy_exercise_check_shared($post_id, $postedAnswers);
+  $results = qq_check_shared($post_id, $postedAnswers);
   wp_send_json($results);
 
 }
@@ -159,7 +156,7 @@ function easy_exercise_check() {
 /*
 Helper function to get innerHTML of DOMNode.
 */
-function easy_exercise_DOMinnerHTML(DOMNode $element) { 
+function qq_DOMinnerHTML(DOMNode $element) { 
   $innerHTML = ''; 
   $children  = $element->childNodes;
   foreach ($children as $child) {
@@ -175,7 +172,7 @@ Callback to filter the content only for this specific post types.
 This getting called both when in single mode as well when looping
 through multiple posts.
 */
-function easy_exercise_filter_the_content($content) {
+function qq_filter_the_content($content) {
 
   // When saving this post from the admin backend we don't apply this filter.
   if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -188,12 +185,12 @@ function easy_exercise_filter_the_content($content) {
 
     $parsedContent = get_post_meta($post_id, '_qq_content', true);
 
-    if (is_singular()()) {
+    if (is_singular()) {
       $answers2send = get_post_meta($post_id, '_qq_possible_answers', true);
       
       $showButton = get_post_meta($post_id, '_qq_enable_show_btn', true) === 'Y'
         ? 'true' : 'false';
-      return $parsedContent . '<script>var EASY_EXERCISE_POST_ID = ' . $post_id . '; var EASY_EXERCISE_ANSWERS = ' . $answers2send . '; var EASY_EXERCISE_SHOW_BUTTON = ' . $showButton . ';</script>';
+      return $parsedContent . '<script>var QQ_POST_ID = ' . $post_id . '; var QQ_ANSWERS = ' . $answers2send . '; var QQ_SHOW_BUTTON = ' . $showButton . ';</script>';
     }
 
     return $parsedContent;
@@ -202,27 +199,27 @@ function easy_exercise_filter_the_content($content) {
   return $content;
 }
 
-function easy_exercise_meta_box_html($post) {
+function qq_meta_box_html($post) {
   $value = get_post_meta($post->ID, '_qq_enable_show_btn', true);
   ?>
   <label><input type="checkbox"
     <?php checked($value, 'Y'); ?>
-    name="qq_enable_show_btn" value="Y"> <?php _e('Enable show button', 'easy_exercise'); ?></label>
+    name="qq_enable_show_btn" value="Y">Enable show button</label>
   <?php
 }
 
-function easy_exercise_add_meta_boxes() {
-  add_meta_box('easy_exercise_meta_box', __('Easy Exercise Settings', 'easy_exercise'),
-    'easy_exercise_meta_box_html', 'easy_exercise', 'side');
+function qq_add_meta_boxes() {
+  add_meta_box('qq_meta_box', 'QQ Settings',
+    'qq_meta_box_html', 'qq', 'side');
 }
 
-function easy_exercise_json_encode($value) {
+function qq_json_encode($value) {
   return json_encode($value, JSON_UNESCAPED_UNICODE);
 }
 
-function easy_exercise_save_post($post_id, $post, $update) {
+function qq_save_post($post_id, $post, $update) {
 
-  $separator = defined('EASY_EXERCISE_SEPARATOR') ? EASY_EXERCISE_SEPARATOR : '|';
+  $separator = defined('QQ_SEPARATOR') ? QQ_SEPARATOR : '|';
   
   // $update is false on first save for new posts, maybe then we can have a shortcut?
   //if (!$update) return;
@@ -240,15 +237,15 @@ function easy_exercise_save_post($post_id, $post, $update) {
   //if ($doc->loadHTML(mb_convert_encoding($content, 'HTML-ENTITIES', 'UTF-8'))) {
     $xpath = new DOMXPath($doc);
     $lists = $xpath->query("//ol[contains(@class, 'quick-questionnaire-enabled')] | //ul[contains(@class, 'quick-questionnaire-enabled')]");
-    $listId = 0;
     $listItemId = 0;
     foreach ($lists as $list) {
+      $listId = $list->getAttribute('data-qq-id');
       $listItems = $list->getElementsByTagName('li');
       $expressionFound = false;
       $classNames = [];
       if (!empty($list->getAttribute('class'))) $classNames[] = $list->getAttribute('class');
       foreach ($listItems as $listItem) {
-        $innerHTML = easy_exercise_DOMinnerHTML($listItem);
+        $innerHTML = qq_DOMinnerHTML($listItem);
         $matches = null;
         if (preg_match("/{(reg|text|itext|radio|checkbox){([^}]+)}}/", $innerHTML, $matches)) {
           $answerType = $matches[1]; // empty or filled
@@ -256,9 +253,7 @@ function easy_exercise_save_post($post_id, $post, $update) {
           $listItemId += 1;
           if (!$expressionFound) {
             $expressionFound = true;
-            $listId += 1;
-            $list->setAttribute('data-easy_exercise-list-id', $listId);
-            $classNames[] = 'easy_exercise-list';
+            $classNames[] = 'qq-list';
             $goodAnswers[$listId] = array();
           }
           $innerHTML = str_replace($matches[0], '', $innerHTML);
@@ -274,7 +269,7 @@ function easy_exercise_save_post($post_id, $post, $update) {
             break;
           }
           
-          $listItem->setAttribute('data-easy_exercise-item-id', $listItemId);
+          $listItem->setAttribute('data-qq-item-id', $listItemId);
           if ($answerType === 'reg') {
             $goodAnswers[$listId][$listItemId] = array(
               'type' => $answerType,
@@ -328,8 +323,8 @@ function easy_exercise_save_post($post_id, $post, $update) {
   }
 
   update_post_meta($post_id, '_qq_content', $content2save);
-  update_post_meta($post_id, '_qq_good_answers', easy_exercise_json_encode($goodAnswers));
-  update_post_meta($post_id, '_qq_possible_answers', easy_exercise_json_encode($answers2send));
+  update_post_meta($post_id, '_qq_good_answers', qq_json_encode($goodAnswers));
+  update_post_meta($post_id, '_qq_possible_answers', qq_json_encode($answers2send));
 
   if (!empty($_POST['qq_enable_show_btn'])) {
     update_post_meta($post_id, '_qq_enable_show_btn', 'Y');
@@ -339,36 +334,30 @@ function easy_exercise_save_post($post_id, $post, $update) {
 
 }
 
-function easy_exercise_activation() {
-  easy_exercise_register_my_content_types();
+function qq_activation() {
+  qq_register_my_content_types();
   flush_rewrite_rules();
 }
 
-function easy_exercise_deactivation() {
-  unregister_post_type('easy_exercise');
+function qq_deactivation() {
+  unregister_post_type(MY_QQ_POST_TYPE);
   flush_rewrite_rules();
 }
-
-// function easy_exercise_load_plugin_textdomain() {
-//   load_plugin_textdomain('easy_exercise', FALSE,
-//     basename(dirname(__FILE__)) . '/languages/');
-// }
-// add_action('plugins_loaded', 'easy_exercise_load_plugin_textdomain');
 
 // Disable wptexturize for this post type
 // Because ellipsis gets f*cked up with utf8_decode...
-function easy_exercise_run_wptexturize($run_texturize) {
+function qq_run_wptexturize($run_texturize) {
   global $post;
   if (!empty($post)) {
     return $post->post_type !== MY_QQ_POST_TYPE;
   }
   return true;
 }
-add_filter('run_wptexturize', 'easy_exercise_run_wptexturize');
+add_filter('run_wptexturize', 'qq_run_wptexturize');
 
 add_action('rest_api_init', function() {
 
-  // Adding answers array to default WP endpoint of easy_exercise
+  // Adding answers array to default WP endpoint of this post type
   register_rest_field(MY_QQ_POST_TYPE, 'qq_answers', array(
     'get_callback' => function($object) {
       return json_decode(get_post_meta($object['id'], '_qq_possible_answers', true));
@@ -393,7 +382,7 @@ add_action('rest_api_init', function() {
         // Caller has to set application/json in order to get the body as json params!
         $postedAnswers = $request->get_json_params();
         $post_id = $request['id'];
-        $results = easy_exercise_check_shared($post_id, $postedAnswers);
+        $results = qq_check_shared($post_id, $postedAnswers);
         return rest_ensure_response($results);
       }
     ),
@@ -403,7 +392,7 @@ add_action('rest_api_init', function() {
       'methods' => WP_REST_Server::READABLE,
       'callback' => function(WP_REST_Request $request) {
         $post_id = $request['id'];
-        $results = easy_exercise_show_shared($post_id);
+        $results = qq_show_shared($post_id);
         if (!$results) {
           $response = new WP_REST_Response(array('error' => 'No permission to show correct answers'));
           $response->set_status(403);
@@ -423,7 +412,7 @@ add_action('rest_api_init', function() {
     'callback' => function(WP_REST_Request $request) {
       $post_id = $request['id'];
       $list_id = $request['listid'];
-      $results = easy_exercise_show_shared($post_id, $list_id);
+      $results = qq_show_shared($post_id, $list_id);
       if (!$results) {
         $response = new WP_REST_Response(array('error' => 'No permission to show correct answers'));
         $response->set_status(403);
@@ -438,16 +427,16 @@ add_action('rest_api_init', function() {
 
 });
 
-add_action('init', 'easy_exercise_register_my_content_types');
-add_action('wp_enqueue_scripts', 'easy_exercise_add_plugin_scripts');
-add_filter('the_content', 'easy_exercise_filter_the_content');
-add_filter('the_excerpt', 'easy_exercise_filter_the_content');
-add_action('wp_ajax_nopriv_easy_exercise_check', 'easy_exercise_check');
-add_action('wp_ajax_easy_exercise_check', 'easy_exercise_check');
-add_action('wp_ajax_nopriv_easy_exercise_show', 'easy_exercise_show');
-add_action('wp_ajax_easy_exercise_show', 'easy_exercise_show');
-//add_action('add_meta_boxes', 'easy_exercise_add_meta_boxes');
-add_action('save_post_' . MY_QQ_POST_TYPE, 'easy_exercise_save_post', 10, 3);
+add_action('init', 'qq_register_my_content_types');
+add_action('wp_enqueue_scripts', 'qq_add_plugin_scripts');
+add_filter('the_content', 'qq_filter_the_content');
+add_filter('the_excerpt', 'qq_filter_the_content');
+add_action('wp_ajax_nopriv_qq_check', 'qq_check');
+add_action('wp_ajax_qq_check', 'qq_check');
+add_action('wp_ajax_nopriv_qq_show', 'qq_show');
+add_action('wp_ajax_qq_show', 'qq_show');
+//add_action('add_meta_boxes', 'qq_add_meta_boxes');
+add_action('save_post_' . MY_QQ_POST_TYPE, 'qq_save_post', 10, 3);
 
 add_action('enqueue_block_editor_assets', function() {
   if (get_post_type() === MY_QQ_POST_TYPE) {
@@ -461,6 +450,6 @@ add_action('enqueue_block_editor_assets', function() {
   }
 });
 
-register_activation_hook(__FILE__, 'easy_exercise_activation');
-register_deactivation_hook(__FILE__, 'easy_exercise_deactivation');
+register_activation_hook(__FILE__, 'qq_activation');
+register_deactivation_hook(__FILE__, 'qq_deactivation');
 

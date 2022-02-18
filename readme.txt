@@ -70,7 +70,7 @@ The answers are displayed as checkboxes.
 
 = How can I change the look of the exercise? =
 
-Just override the classes you see in the easy_exercise.css file.
+Just override the classes you see in the qq.css file.
 
 = Change the options separator =
 
