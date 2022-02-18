@@ -12,7 +12,7 @@ Create simple exercises directly in the editor.
 == Description ==
 
 Create simple exercises directly in the editor by putting the possible answer(s) in double brackets.
-A exercise must be an ordered or unordened list.
+A quick questionnaire must be an ordered or unordened list.
 
 The following types of answers are possible:
 
@@ -23,6 +23,13 @@ The correct answer has to be entered in a textbox.
     <ul>
       <li>The capital of France is ...? {text{ Paris }}</li>
     </ul>
+
+You can also use a case insensitive textbox by using the `itext` property:
+
+    <ul>
+      <li>The capital of France is ...? {itext{ Paris }}</li>
+    </ul>
+
 
 __Enter the correct answer in a textbox - multiple answers possible:__
 
@@ -64,7 +71,7 @@ The answers are displayed as checkboxes.
 
 1. Upload the plugin files to the `/wp-content/plugins/plugin-name` directory, or install the plugin through the WordPress plugins screen directly.
 2. Activate the plugin through the 'Plugins' screen in WordPress
-3. Click on the new menu item "Easy Exercise" to create easy exercises
+3. Click on the new menu item "Quick Questionnaire" to create quick questionnaires
 
 == Frequently Asked Questions ==
 
@@ -85,8 +92,12 @@ By default the `|` is used to separate the radio and checkbox options, but you c
 
 == Changelog ==
 
+= 2.0 =
+* Using Gutenberg blocks to enable quick questionnaire lists and show buttons
+* Renamed to quick questionnaire
+
 = 1.19 =
-* Override answer separator by defining the EASY_EXERCISE_SEPARATOR constant
+* Override answer separator by defining the QQ_SEPARATOR constant
 * New `itext` option as a case insensitive textbox
 * Wrap question inside span
 * Removed jQuery dependency

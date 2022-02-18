@@ -245,11 +245,12 @@ const withSidebarEnable = (0,_wordpress_compose__WEBPACK_IMPORTED_MODULE_3__.cre
       onChange: value => {
         setAttributes({
           enableAttribute: value,
+          showButtonAttribute: value ? showButtonAttribute : false,
           qqId: value ? props.clientId : null
         });
       }
-    }), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_5__.CheckboxControl, {
-      label: "Enable show button",
+    }), enableAttribute ? (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_5__.CheckboxControl, {
+      label: "Show button",
       checked: showButtonAttribute,
       onChange: value => {
         //metaValue[qqId] = value;
@@ -258,7 +259,7 @@ const withSidebarEnable = (0,_wordpress_compose__WEBPACK_IMPORTED_MODULE_3__.cre
           showButtonAttribute: value
         });
       }
-    })))));
+    }) : null))));
   };
 }, 'withSidebarEnable');
 (0,_wordpress_hooks__WEBPACK_IMPORTED_MODULE_2__.addFilter)('editor.BlockEdit', 'quick-questionnaire/with-sidebar-enable', withSidebarEnable); // Add className to block in editor.

@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Quick Questionnaire
-Version: 1.19
+Version: 1.0
 Description: Create simple questionnaires directly in the editor
 Author: Michiel van Eerd
 Author URI: http://www.michielvaneerd.nl
@@ -239,7 +239,7 @@ function qq_save_post($post_id, $post, $update) {
     foreach ($lists as $list) {
       $listId = $list->getAttribute('data-qq-id');
       $listItems = $list->getElementsByTagName('li');
-      if (strpos($list->getAttribute('class'), 'quick-questionnaire-show-button') !== false) {
+      if ($list->hasAttribute('data-qq-show-button')) {
         $showButtons[] = $listId;
       }
       $expressionFound = false;
@@ -441,6 +441,12 @@ add_action('enqueue_block_editor_assets', function() {
       'quick-questionnaire-gutenberg',
       plugin_dir_url( __FILE__ ) . 'build/index.js',
       $script_assets['dependencies'],
+      $script_assets['version']
+    );
+    wp_enqueue_style(
+      'quick-questionnaire-gutenberg',
+      plugin_dir_url( __FILE__ ) . 'css/qq-editor.css',
+      null,
       $script_assets['version']
     );
   }

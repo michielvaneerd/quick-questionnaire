@@ -58,16 +58,17 @@ const withSidebarEnable = createHigherOrderComponent((BlockEdit) => {
                     <CheckboxControl label="Enable" checked={enableAttribute} onChange={(value) => {
                         setAttributes({
                             enableAttribute: value,
+                            showButtonAttribute: value ? showButtonAttribute : false,
                             qqId: value ? props.clientId : null
                         });
                     }} />
-                    <CheckboxControl label="Enable show button" checked={showButtonAttribute} onChange={(value) => {
+                    {enableAttribute ? <CheckboxControl label="Show button" checked={showButtonAttribute} onChange={(value) => {
                         //metaValue[qqId] = value;
                         //setMeta({ ...meta, _qq_enable_show_btn: JSON.stringify(metaValue) });
                         setAttributes({
                             showButtonAttribute: value
                         });
-                    }} />
+                    }} /> : null}
                 </PanelBody>
                 </InspectorControls>
             </Fragment>
