@@ -1,4 +1,4 @@
-=== Easy Exercise ===
+=== Quick Questionnaire ===
 Contributors: michielve
 Tags: exercise, practice, test
 Requires at least: 3.0.1
