@@ -32,6 +32,16 @@ module.exports = window["wp"]["components"];
 
 /***/ }),
 
+/***/ "@wordpress/dom-ready":
+/*!**********************************!*\
+  !*** external ["wp","domReady"] ***!
+  \**********************************/
+/***/ (function(module) {
+
+module.exports = window["wp"]["domReady"];
+
+/***/ }),
+
 /***/ "@wordpress/element":
 /*!*********************************!*\
   !*** external ["wp","element"] ***!
@@ -156,6 +166,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var _wordpress_blocks__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @wordpress/blocks */ "@wordpress/blocks");
 /* harmony import */ var _wordpress_blocks__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_wordpress_blocks__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _wordpress_dom_ready__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @wordpress/dom-ready */ "@wordpress/dom-ready");
+/* harmony import */ var _wordpress_dom_ready__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_wordpress_dom_ready__WEBPACK_IMPORTED_MODULE_5__);
 
 
 
@@ -170,6 +182,7 @@ __webpack_require__.r(__webpack_exports__);
 //import { createHigherOrderComponent } from '@wordpress/compose';
 
  //import { useEntityProp } from '@wordpress/core-data';
+
 
  // const blockName = 'core/list';
 // // Enable some attributes
@@ -281,6 +294,16 @@ __webpack_require__.r(__webpack_exports__);
 //     saveSidebarEnableAttribute
 // );
 
+_wordpress_dom_ready__WEBPACK_IMPORTED_MODULE_5___default()(function () {
+  //unregisterBlockType('core/verse');
+  // Now unregister quick-questionnaire/list if we are not on quick-questionnaire post_type
+  // AND define is not set.
+  if (!window.qq_all_posts && window.qq_my_post_type !== 'quick-questionnaire') {
+    console.log(typeof window.qq_all_posts);
+    console.log(window.qq_my_post_type + ' en ' + window.qq_all_posts);
+    (0,_wordpress_blocks__WEBPACK_IMPORTED_MODULE_4__.unregisterBlockType)('quick-questionnaire/list');
+  }
+});
 (0,_wordpress_blocks__WEBPACK_IMPORTED_MODULE_4__.registerBlockType)('quick-questionnaire/list', {
   edit: function (props) {
     const {

@@ -13,8 +13,16 @@ define('MY_QQ_PLUGIN_NAME', 'Quick Questionnaire');
 define('MY_QQ_POST_TYPE', 'quick-questionnaire');
 
 if (!defined('QQ_ALL_POSTS')) {
-  define('QQ_ALL_POSTS', false);
+  define('QQ_ALL_POSTS', true);
 }
+
+add_action('admin_head', function() {
+  global $post;
+  if (!empty($post)) {
+    $allPosts = QQ_ALL_POSTS ? 'true' : 'false';
+    echo "<script>window.qq_my_post_type = '" . $post->post_type . "'; window.qq_all_posts = $allPosts;</script>";
+  }
+});
 
 function qq_register_my_content_types() {
 
