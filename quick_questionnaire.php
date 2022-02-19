@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Quick Questionnaire
-Version: 2.1
+Version: 2.2
 Description: Create simple questionnaires directly in the editor
 Author: Michiel van Eerd
 Author URI: http://www.michielvaneerd.nl
@@ -13,7 +13,7 @@ define('MY_QQ_PLUGIN_NAME', 'Quick Questionnaire');
 define('MY_QQ_POST_TYPE', 'quick-questionnaire');
 
 if (!defined('QQ_ALL_POSTS')) {
-  define('QQ_ALL_POSTS', true);
+  define('QQ_ALL_POSTS', false);
 }
 
 // Add these JS vars to admin HTML so we can see these values inside the block build/index.js file

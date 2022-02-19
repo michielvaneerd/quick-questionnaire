@@ -138,8 +138,6 @@ domReady(function () {
     // Now unregister quick-questionnaire/list if we are not on quick-questionnaire post_type
     // AND define is not set.
     if (!window.qq_all_posts && window.qq_my_post_type !== 'quick-questionnaire') {
-        console.log(typeof window.qq_all_posts);
-        console.log(window.qq_my_post_type + ' en ' + window.qq_all_posts);
         unregisterBlockType('quick-questionnaire/list');
     }
 });
@@ -149,12 +147,13 @@ registerBlockType('quick-questionnaire/list', {
     edit: function (props) {
         const { attributes, setAttributes } = props;
         const { showButton, ordered } = attributes;
-        const blockProps = useBlockProps();
+        const blockProps = useBlockProps({
+            className: "quick-questionnaire-enabled"
+        });
 
         return <>
             <RichText
                 {...blockProps}
-                className="quick-questionnaire-enabled"
                 tagName={ordered ? "ol" : "ul"}
                 multiline="li"
                 value={attributes.content}
