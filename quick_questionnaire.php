@@ -212,16 +212,19 @@ function qq_filter_the_content($content) {
 
     $parsedContent = get_post_meta($post_id, '_qq_content', true);
 
-    if (is_singular()) {
-      $answers2send = get_post_meta($post_id, '_qq_possible_answers', true);
-      
-      $showButton = get_post_meta($post_id, '_qq_enable_show_btn', true) === 'Y'
-        ? 'true' : 'false';
-      return $parsedContent . '<script>var QQ_POST_ID = ' . $post_id . '; var QQ_ANSWERS = ' . $answers2send . '; var QQ_SHOW_BUTTON = ' . $showButton . ';</script>';
+    if (!empty($parsedContent)) {
+      if (is_singular()) {
+        $answers2send = get_post_meta($post_id, '_qq_possible_answers', true);
+        if (empty($answers2send)) {
+          $answers2send = '{}';
+        }
+        $showButton = get_post_meta($post_id, '_qq_enable_show_btn', true) === 'Y'
+          ? 'true' : 'false';
+        return $parsedContent . '<script>var QQ_POST_ID = ' . $post_id . '; var QQ_ANSWERS = ' . $answers2send . '; var QQ_SHOW_BUTTON = ' . $showButton . ';</script>';
+      }
+      return $parsedContent;
     }
-
-    return $parsedContent;
-
+    
   }
   return $content;
 }
