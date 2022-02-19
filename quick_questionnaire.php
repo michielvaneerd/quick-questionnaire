@@ -12,6 +12,10 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 define('MY_QQ_PLUGIN_NAME', 'Quick Questionnaire');
 define('MY_QQ_POST_TYPE', 'quick-questionnaire');
 
+if (!defined('QQ_ALL_POSTS')) {
+  define('QQ_ALL_POSTS', false);
+}
+
 function qq_register_my_content_types() {
 
   register_post_type(MY_QQ_POST_TYPE, array(
@@ -35,7 +39,7 @@ function qq_register_my_content_types() {
       'single' => true,
       'type' => 'string',
       'auth_callback' => function() {
-        return current_user_can( 'edit_posts' );
+        return current_user_can('edit_posts');
       }
   ]);
 
@@ -48,7 +52,7 @@ at a single questionnaire.
 */
 function qq_add_plugin_scripts() {
 
-  if (is_singular() && get_post_type() === MY_QQ_POST_TYPE) {
+  if (is_singular() && (QQ_ALL_POSTS || get_post_type() === MY_QQ_POST_TYPE)) {
 
     wp_enqueue_script('qq', plugin_dir_url(__FILE__) . 'js/qq.js', null, '1.0.0', true);
     wp_enqueue_style('qq_style', plugin_dir_url(__FILE__) . 'css/qq.css');
@@ -190,7 +194,7 @@ function qq_filter_the_content($content) {
     return $content;
   }
 
-  if (get_post_type() === MY_QQ_POST_TYPE) {
+  if (QQ_ALL_POSTS || get_post_type() === MY_QQ_POST_TYPE) {
 
     $post_id = get_the_ID();
 
@@ -345,6 +349,7 @@ function qq_deactivation() {
 function qq_run_wptexturize($run_texturize) {
   global $post;
   if (!empty($post)) {
+    if (QQ_ALL_POSTS) return false;
     return $post->post_type !== MY_QQ_POST_TYPE;
   }
   return true;
@@ -431,11 +436,14 @@ add_action('wp_ajax_nopriv_qq_check', 'qq_check');
 add_action('wp_ajax_qq_check', 'qq_check');
 add_action('wp_ajax_nopriv_qq_show', 'qq_show');
 add_action('wp_ajax_qq_show', 'qq_show');
-//add_action('add_meta_boxes', 'qq_add_meta_boxes');
-add_action('save_post_' . MY_QQ_POST_TYPE, 'qq_save_post', 10, 3);
+if (QQ_ALL_POSTS) {
+  add_action('save_post', 'qq_save_post', 10, 3);
+} else {
+  add_action('save_post_' . MY_QQ_POST_TYPE, 'qq_save_post', 10, 3);
+}
 
 add_action('enqueue_block_editor_assets', function() {
-  if (get_post_type() === MY_QQ_POST_TYPE) {
+  if (QQ_ALL_POSTS || get_post_type() === MY_QQ_POST_TYPE) {
     $script_assets = require(plugin_dir_path( __FILE__ ) . 'build/index.asset.php');
     wp_enqueue_script(
       'quick-questionnaire-gutenberg',
