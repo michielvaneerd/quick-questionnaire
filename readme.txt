@@ -92,6 +92,9 @@ By default the `|` is used to separate the radio and checkbox options, but you c
 
 == Changelog ==
 
+= 2.1 =
+* Added custom block instead of expanding existing list block
+
 = 2.0 =
 * Using Gutenberg blocks to enable quick questionnaire lists and show buttons
 * Renamed to quick questionnaire

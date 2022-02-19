@@ -1,0 +1,20 @@
+{
+    "apiVersion": 2,
+    "name": "quick-questionnaire/list",
+    "title": "Quick Questionnaire Basic List",
+    "icon": "universal-access-alt",
+    "category": "layout",
+    "editorScript": "file:./build/index.js",
+    "editorStyle": "file:./css/qq-editor.css",
+    "style": "file:./css/qq.css",
+    "attributes": {
+        "content": {
+            "type": "array",
+            "source": "children",
+            "selector": "ol"
+        },
+        "showButton": {
+            "type": "boolean" 
+        }
+    }
+}

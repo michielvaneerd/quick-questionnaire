@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Quick Questionnaire
-Version: 2.0
+Version: 2.1
 Description: Create simple questionnaires directly in the editor
 Author: Michiel van Eerd
 Author URI: http://www.michielvaneerd.nl
@@ -42,6 +42,8 @@ function qq_register_my_content_types() {
         return current_user_can('edit_posts');
       }
   ]);
+
+  register_block_type(__DIR__);
 
 }
 
@@ -231,6 +233,7 @@ function qq_save_post($post_id, $post, $update) {
   $goodAnswers = array(); // listid => array(listItemId => string|array) (only good answers)
   $answers2send = array(); // to send to client.
   $content2save = '';
+  $listId = 0;
   $doc = new DOMDocument('1.0', 'UTF-8');
   // Hack to make sure we load this as UTF-8, otherwise it gets loaded as ISO-8859-1
   // Now we will have 2 XML tags...
@@ -241,7 +244,9 @@ function qq_save_post($post_id, $post, $update) {
     $lists = $xpath->query("//ol[contains(@class, 'quick-questionnaire-enabled')] | //ul[contains(@class, 'quick-questionnaire-enabled')]");
     $listItemId = 0;
     foreach ($lists as $list) {
-      $listId = $list->getAttribute('data-qq-id');
+      $listId += 1;
+      //$listId = $list->getAttribute('data-qq-id');
+      $list->setAttribute('data-qq-id', $listId);
       $listItems = $list->getElementsByTagName('li');
       if ($list->hasAttribute('data-qq-show-button')) {
         $showButtons[] = $listId;
@@ -442,23 +447,23 @@ if (QQ_ALL_POSTS) {
   add_action('save_post_' . MY_QQ_POST_TYPE, 'qq_save_post', 10, 3);
 }
 
-add_action('enqueue_block_editor_assets', function() {
-  if (QQ_ALL_POSTS || get_post_type() === MY_QQ_POST_TYPE) {
-    $script_assets = require(plugin_dir_path( __FILE__ ) . 'build/index.asset.php');
-    wp_enqueue_script(
-      'quick-questionnaire-gutenberg',
-      plugin_dir_url( __FILE__ ) . 'build/index.js',
-      $script_assets['dependencies'],
-      $script_assets['version']
-    );
-    wp_enqueue_style(
-      'quick-questionnaire-gutenberg',
-      plugin_dir_url( __FILE__ ) . 'css/qq-editor.css',
-      null,
-      $script_assets['version']
-    );
-  }
-});
+// add_action('enqueue_block_editor_assets', function() {
+//   if (QQ_ALL_POSTS || get_post_type() === MY_QQ_POST_TYPE) {
+//     $script_assets = require(plugin_dir_path( __FILE__ ) . 'build/index.asset.php');
+//     wp_enqueue_script(
+//       'quick-questionnaire-gutenberg',
+//       plugin_dir_url( __FILE__ ) . 'build/index.js',
+//       $script_assets['dependencies'],
+//       $script_assets['version']
+//     );
+//     wp_enqueue_style(
+//       'quick-questionnaire-gutenberg',
+//       plugin_dir_url( __FILE__ ) . 'css/qq-editor.css',
+//       null,
+//       $script_assets['version']
+//     );
+//   }
+// });
 
 register_activation_hook(__FILE__, 'qq_activation');
 register_deactivation_hook(__FILE__, 'qq_deactivation');

@@ -12,6 +12,16 @@ module.exports = window["wp"]["blockEditor"];
 
 /***/ }),
 
+/***/ "@wordpress/blocks":
+/*!********************************!*\
+  !*** external ["wp","blocks"] ***!
+  \********************************/
+/***/ (function(module) {
+
+module.exports = window["wp"]["blocks"];
+
+/***/ }),
+
 /***/ "@wordpress/components":
 /*!************************************!*\
   !*** external ["wp","components"] ***!
@@ -22,26 +32,6 @@ module.exports = window["wp"]["components"];
 
 /***/ }),
 
-/***/ "@wordpress/compose":
-/*!*********************************!*\
-  !*** external ["wp","compose"] ***!
-  \*********************************/
-/***/ (function(module) {
-
-module.exports = window["wp"]["compose"];
-
-/***/ }),
-
-/***/ "@wordpress/core-data":
-/*!**********************************!*\
-  !*** external ["wp","coreData"] ***!
-  \**********************************/
-/***/ (function(module) {
-
-module.exports = window["wp"]["coreData"];
-
-/***/ }),
-
 /***/ "@wordpress/element":
 /*!*********************************!*\
   !*** external ["wp","element"] ***!
@@ -49,16 +39,6 @@ module.exports = window["wp"]["coreData"];
 /***/ (function(module) {
 
 module.exports = window["wp"]["element"];
-
-/***/ }),
-
-/***/ "@wordpress/hooks":
-/*!*******************************!*\
-  !*** external ["wp","hooks"] ***!
-  \*******************************/
-/***/ (function(module) {
-
-module.exports = window["wp"]["hooks"];
 
 /***/ }),
 
@@ -170,16 +150,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _babel_runtime_helpers_extends__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/helpers/extends */ "../privategooglecalendars/node_modules/@babel/runtime/helpers/esm/extends.js");
 /* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
 /* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _wordpress_hooks__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/hooks */ "@wordpress/hooks");
-/* harmony import */ var _wordpress_hooks__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_hooks__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _wordpress_compose__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/compose */ "@wordpress/compose");
-/* harmony import */ var _wordpress_compose__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_compose__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @wordpress/block-editor */ "@wordpress/block-editor");
-/* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @wordpress/components */ "@wordpress/components");
-/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_5__);
-/* harmony import */ var _wordpress_core_data__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @wordpress/core-data */ "@wordpress/core-data");
-/* harmony import */ var _wordpress_core_data__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(_wordpress_core_data__WEBPACK_IMPORTED_MODULE_6__);
+/* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/block-editor */ "@wordpress/block-editor");
+/* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/components */ "@wordpress/components");
+/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _wordpress_blocks__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @wordpress/blocks */ "@wordpress/blocks");
+/* harmony import */ var _wordpress_blocks__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_wordpress_blocks__WEBPACK_IMPORTED_MODULE_4__);
 
 
 
@@ -188,146 +164,166 @@ __webpack_require__.r(__webpack_exports__);
  * https://github.com/MarieComet/core-block-custom-attributes
  * https://developer.wordpress.org/block-editor/how-to-guides/plugin-sidebar-0/
  * https://awhitepixel.com/blog/how-to-add-post-meta-fields-to-gutenberg-document-sidebar/
+ * https://wordpress.org/support/topic/how-to-create-a-gutenberg-block-with-your-own-list-inside-which-there-will-be-o/ ==> eigen list maken
  */
+//import { addFilter } from '@wordpress/hooks';
+//import { createHigherOrderComponent } from '@wordpress/compose';
 
+ //import { useEntityProp } from '@wordpress/core-data';
 
+ // const blockName = 'core/list';
+// // Enable some attributes
+// function setSidebarEnableAttribute(settings, name) {
+//     if (name !== blockName) return settings;
+//     return Object.assign({}, settings, {
+//         attributes: Object.assign({}, settings.attributes, {
+//             enableAttribute: { type: 'boolean' },
+//             showButtonAttribute: { type: 'boolean' },
+//             qqId: { type: 'string' }
+//         }),
+//     });
+// }
+// addFilter(
+//     'blocks.registerBlockType',
+//     'quick-questionnaire/set-sidebar-enable-attribute',
+//     setSidebarEnableAttribute
+// );
+// // Add sidebar controls for the attributes
+// const withSidebarEnable = createHigherOrderComponent((BlockEdit) => {
+//     return (props) => {
+//         if (props.name !== blockName) {
+//             return <BlockEdit {...props} />;
+//         }
+//         const { attributes, setAttributes } = props;
+//         const { enableAttribute, showButtonAttribute } = attributes;
+//         // const [ meta, setMeta ] = useEntityProp('postType', 'quick-questionnaire', 'meta');
+//         // let metaValue = null;
+//         // try {
+//         //     metaValue = JSON.parse(meta['_qq_enable_show_btn']) || {};
+//         // } catch (ex) {
+//         //     console.error(ex);
+//         //     metaValue = {};
+//         // }
+//         return <>
+//             <Fragment>
+//                 <BlockEdit {...props} />
+//                 <InspectorControls>
+//                     <PanelBody title="Quick Questionnaire">
+//                         <CheckboxControl label="Enable" checked={enableAttribute} onChange={(value) => {
+//                             setAttributes({
+//                                 enableAttribute: value,
+//                                 showButtonAttribute: value ? showButtonAttribute : false,
+//                                 qqId: value ? props.clientId : null
+//                             });
+//                         }} />
+//                         {enableAttribute ? <CheckboxControl label="Show button" checked={showButtonAttribute} onChange={(value) => {
+//                             //metaValue[qqId] = value;
+//                             //setMeta({ ...meta, _qq_enable_show_btn: JSON.stringify(metaValue) });
+//                             setAttributes({
+//                                 showButtonAttribute: value
+//                             });
+//                         }} /> : null}
+//                     </PanelBody>
+//                 </InspectorControls>
+//             </Fragment>
+//         </>;
+//     };
+// }, 'withSidebarEnable');
+// addFilter(
+//     'editor.BlockEdit',
+//     'quick-questionnaire/with-sidebar-enable',
+//     withSidebarEnable
+// );
+// // Add className to block in editor.
+// const withSidebarEnableProp = createHigherOrderComponent((BlockListBlock) => {
+//     return (props) => {
+//         if (props.name !== blockName) {
+//             return <BlockListBlock {...props} />;
+//         }
+//         const { attributes } = props;
+//         const { enableAttribute, showButtonAttribute } = attributes;
+//         let classNames = [];
+//         if (enableAttribute) classNames.push('quick-questionnaire-enabled');
+//         if (showButtonAttribute) classNames.push('quick-questionnaire-show-button');
+//         if (classNames.length > 0) {
+//             return <BlockListBlock className={classNames.join(" ")} {...props} />;
+//         } else {
+//             return <BlockListBlock {...props} />;
+//         }
+//     };
+// });
+// addFilter(
+//     'editor.BlockListBlock',
+//     'quick-questionnaire/with-sidebar-enable-prop',
+//     withSidebarEnableProp
+// );
+// // Add className to block in database
+// const saveSidebarEnableAttribute = (extraProps, blockType, attributes) => {
+//     if (blockType.name === blockName) {
+//         const { enableAttribute, showButtonAttribute, qqId } = attributes;
+//         let classNames = [];
+//         if (extraProps.className) classNames.push(extraProps.className);
+//         if (enableAttribute) classNames.push('quick-questionnaire-enabled');
+//         //if (showButtonAttribute) classNames.push('quick-questionnaire-show-button');
+//         if (enableAttribute) {
+//             extraProps.className = classNames.join(" ");
+//             extraProps['data-qq-id'] = qqId;
+//             if (showButtonAttribute) {
+//                 extraProps['data-qq-show-button'] = true;
+//             }
+//         }
+//     }
+//     return extraProps;
+// };
+// addFilter(
+//     'blocks.getSaveContent.extraProps',
+//     'quick-questionnaire/save-sidebar-enable-attribute',
+//     saveSidebarEnableAttribute
+// );
 
-
-
-const blockName = 'core/list'; // Enable some attributes
-
-function setSidebarEnableAttribute(settings, name) {
-  if (name !== blockName) return settings;
-  return Object.assign({}, settings, {
-    attributes: Object.assign({}, settings.attributes, {
-      enableAttribute: {
-        type: 'boolean'
-      },
-      showButtonAttribute: {
-        type: 'boolean'
-      },
-      qqId: {
-        type: 'string'
-      }
-    })
-  });
-}
-
-(0,_wordpress_hooks__WEBPACK_IMPORTED_MODULE_2__.addFilter)('blocks.registerBlockType', 'quick-questionnaire/set-sidebar-enable-attribute', setSidebarEnableAttribute); // Add sidebar controls for the attributes
-
-const withSidebarEnable = (0,_wordpress_compose__WEBPACK_IMPORTED_MODULE_3__.createHigherOrderComponent)(BlockEdit => {
-  return props => {
-    if (props.name !== blockName) {
-      return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockEdit, props);
-    }
-
+(0,_wordpress_blocks__WEBPACK_IMPORTED_MODULE_4__.registerBlockType)('quick-questionnaire/list', {
+  edit: function (props) {
     const {
       attributes,
       setAttributes
     } = props;
     const {
-      enableAttribute,
-      showButtonAttribute
-    } = attributes; // const [ meta, setMeta ] = useEntityProp('postType', 'quick-questionnaire', 'meta');
-    // let metaValue = null;
-    // try {
-    //     metaValue = JSON.parse(meta['_qq_enable_show_btn']) || {};
-    // } catch (ex) {
-    //     console.error(ex);
-    //     metaValue = {};
-    // }
-
-    return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.Fragment, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.Fragment, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockEdit, props), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_4__.InspectorControls, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_5__.PanelBody, {
+      showButton
+    } = attributes;
+    const blockProps = (0,_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.useBlockProps)();
+    return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.Fragment, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.RichText, (0,_babel_runtime_helpers_extends__WEBPACK_IMPORTED_MODULE_0__["default"])({}, blockProps, {
+      className: "quick-questionnaire-enabled",
+      tagName: "ol",
+      multiline: "li",
+      value: attributes.content,
+      onChange: content => setAttributes({
+        content
+      })
+    })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.InspectorControls, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.PanelBody, {
       title: "Quick Questionnaire"
-    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_5__.CheckboxControl, {
-      label: "Enable",
-      checked: enableAttribute,
-      onChange: value => {
-        setAttributes({
-          enableAttribute: value,
-          showButtonAttribute: value ? showButtonAttribute : false,
-          qqId: value ? props.clientId : null
-        });
-      }
-    }), enableAttribute ? (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_5__.CheckboxControl, {
+    }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.CheckboxControl, {
       label: "Show button",
-      checked: showButtonAttribute,
+      checked: showButton,
       onChange: value => {
-        //metaValue[qqId] = value;
-        //setMeta({ ...meta, _qq_enable_show_btn: JSON.stringify(metaValue) });
         setAttributes({
-          showButtonAttribute: value
+          showButton: value
         });
       }
-    }) : null))));
-  };
-}, 'withSidebarEnable');
-(0,_wordpress_hooks__WEBPACK_IMPORTED_MODULE_2__.addFilter)('editor.BlockEdit', 'quick-questionnaire/with-sidebar-enable', withSidebarEnable); // Add className to block in editor.
-
-const withSidebarEnableProp = (0,_wordpress_compose__WEBPACK_IMPORTED_MODULE_3__.createHigherOrderComponent)(BlockListBlock => {
-  return props => {
-    if (props.name !== blockName) {
-      return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockListBlock, props);
-    }
-
+    }))));
+  },
+  save: function (props) {
     const {
       attributes
     } = props;
-    const {
-      enableAttribute,
-      showButtonAttribute
-    } = attributes;
-    let classNames = [];
-    if (enableAttribute) classNames.push('quick-questionnaire-enabled');
-    if (showButtonAttribute) classNames.push('quick-questionnaire-show-button');
-
-    if (classNames.length > 0) {
-      return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockListBlock, (0,_babel_runtime_helpers_extends__WEBPACK_IMPORTED_MODULE_0__["default"])({
-        className: classNames.join(" ")
-      }, props));
-    } else {
-      return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(BlockListBlock, props);
-    }
-  };
-});
-(0,_wordpress_hooks__WEBPACK_IMPORTED_MODULE_2__.addFilter)('editor.BlockListBlock', 'quick-questionnaire/with-sidebar-enable-prop', withSidebarEnableProp); // Add className to block in database
-
-const saveSidebarEnableAttribute = (extraProps, blockType, attributes) => {
-  if (blockType.name === blockName) {
-    const {
-      enableAttribute,
-      showButtonAttribute,
-      qqId
-    } = attributes;
-    let classNames = [];
-    if (extraProps.className) classNames.push(extraProps.className);
-    if (enableAttribute) classNames.push('quick-questionnaire-enabled'); //if (showButtonAttribute) classNames.push('quick-questionnaire-show-button');
-
-    if (enableAttribute) {
-      extraProps.className = classNames.join(" ");
-      extraProps['data-qq-id'] = qqId;
-
-      if (showButtonAttribute) {
-        extraProps['data-qq-show-button'] = true;
-      }
-    }
+    const blockProps = _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.useBlockProps.save();
+    return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.RichText.Content, (0,_babel_runtime_helpers_extends__WEBPACK_IMPORTED_MODULE_0__["default"])({}, blockProps, {
+      "data-qq-show-button": attributes.showButton || null,
+      tagName: "ol",
+      className: "quick-questionnaire-enabled",
+      value: attributes.content
+    }));
   }
-
-  return extraProps;
-};
-
-(0,_wordpress_hooks__WEBPACK_IMPORTED_MODULE_2__.addFilter)('blocks.getSaveContent.extraProps', 'quick-questionnaire/save-sidebar-enable-attribute', saveSidebarEnableAttribute); // const saveChangedContent = (element, blockType, attributes) => {
-//     if (blockType.name === blockName) {
-//         console.log(element);
-//         console.log(attributes.values);
-//     }
-//     return element;
-// };
-// addFilter(
-//     'blocks.getSaveElement',
-//     'quick-questionnaire/save-changed-content',
-//     saveChangedContent
-// );
+});
 }();
 /******/ })()
 ;
