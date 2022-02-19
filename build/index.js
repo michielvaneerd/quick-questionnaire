@@ -288,12 +288,13 @@ __webpack_require__.r(__webpack_exports__);
       setAttributes
     } = props;
     const {
-      showButton
+      showButton,
+      ordered
     } = attributes;
     const blockProps = (0,_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.useBlockProps)();
     return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.Fragment, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.RichText, (0,_babel_runtime_helpers_extends__WEBPACK_IMPORTED_MODULE_0__["default"])({}, blockProps, {
       className: "quick-questionnaire-enabled",
-      tagName: "ol",
+      tagName: ordered ? "ol" : "ul",
       multiline: "li",
       value: attributes.content,
       onChange: content => setAttributes({
@@ -309,16 +310,28 @@ __webpack_require__.r(__webpack_exports__);
           showButton: value
         });
       }
+    }), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_3__.CheckboxControl, {
+      label: "Ordered",
+      checked: ordered,
+      onChange: value => {
+        setAttributes({
+          ordered: value
+        });
+      }
     }))));
   },
   save: function (props) {
     const {
       attributes
     } = props;
+    const {
+      showButton,
+      ordered
+    } = attributes;
     const blockProps = _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.useBlockProps.save();
     return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.RichText.Content, (0,_babel_runtime_helpers_extends__WEBPACK_IMPORTED_MODULE_0__["default"])({}, blockProps, {
-      "data-qq-show-button": attributes.showButton || null,
-      tagName: "ol",
+      "data-qq-show-button": showButton || null,
+      tagName: ordered ? "ol" : "ul",
       className: "quick-questionnaire-enabled",
       value: attributes.content
     }));

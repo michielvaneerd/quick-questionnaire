@@ -135,14 +135,14 @@ import { registerBlockType } from '@wordpress/blocks';
 registerBlockType('quick-questionnaire/list', {
     edit: function (props) {
         const { attributes, setAttributes } = props;
-        const { showButton } = attributes;
+        const { showButton, ordered } = attributes;
         const blockProps = useBlockProps();
 
         return <>
             <RichText
                 {...blockProps}
                 className="quick-questionnaire-enabled"
-                tagName="ol"
+                tagName={ordered ? "ol" : "ul"}
                 multiline="li"
                 value={attributes.content}
                 onChange={(content) => setAttributes({ content })}
@@ -154,16 +154,22 @@ registerBlockType('quick-questionnaire/list', {
                             showButton: value
                         });
                     }} />
+                    <CheckboxControl label="Ordered" checked={ordered} onChange={(value) => {
+                        setAttributes({
+                            ordered: value
+                        });
+                    }} />
                 </PanelBody>
             </InspectorControls>
         </>;
     },
     save: function (props) {
         const { attributes } = props;
+        const { showButton, ordered } = attributes;
         const blockProps = useBlockProps.save();
         return <RichText.Content {...blockProps}
-            data-qq-show-button={attributes.showButton || null}
-            tagName="ol"
+            data-qq-show-button={showButton || null}
+            tagName={ordered ? "ol" : "ul"}
             className="quick-questionnaire-enabled"
             value={attributes.content} />;
     },

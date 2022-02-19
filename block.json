@@ -9,11 +9,15 @@
     "style": "file:./css/qq.css",
     "attributes": {
         "content": {
-            "type": "array",
-            "source": "children",
-            "selector": "ol"
+            "type": "string",
+            "source": "html",
+            "multiline": "li",
+            "selector": "ol, ul"
         },
         "showButton": {
+            "type": "boolean" 
+        },
+        "ordered": {
             "type": "boolean" 
         }
     }
