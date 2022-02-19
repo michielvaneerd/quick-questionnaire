@@ -16,6 +16,8 @@ if (!defined('QQ_ALL_POSTS')) {
   define('QQ_ALL_POSTS', true);
 }
 
+// Add these JS vars to admin HTML so we can see these values inside the block build/index.js file
+// and enable/disable the block if necessary
 add_action('admin_head', function() {
   global $post;
   if (!empty($post)) {
@@ -41,15 +43,15 @@ function qq_register_my_content_types() {
     'supports' => ['title', 'editor', 'custom-fields']
   ));
 
-  register_post_meta(MY_QQ_POST_TYPE,
-    '_qq_enable_show_btn', [
-      'show_in_rest' => true,
-      'single' => true,
-      'type' => 'string',
-      'auth_callback' => function() {
-        return current_user_can('edit_posts');
-      }
-  ]);
+  // register_post_meta(MY_QQ_POST_TYPE,
+  //   '_qq_enable_show_btn', [
+  //     'show_in_rest' => true,
+  //     'single' => true,
+  //     'type' => 'string',
+  //     'auth_callback' => function() {
+  //       return current_user_can('edit_posts');
+  //     }
+  // ]);
 
   register_block_type(__DIR__);
 
