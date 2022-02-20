@@ -9,11 +9,14 @@ License: GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 */
 
+// We have to disable render_block filter during the save_post filter because that's where we get the answers.
+$qqDisableRenderBlock = false;
+
 define('MY_QQ_PLUGIN_NAME', 'Quick Questionnaire');
 define('MY_QQ_POST_TYPE', 'quick-questionnaire');
 
 if (!defined('QQ_ALL_POSTS')) {
-  define('QQ_ALL_POSTS', false);
+  define('QQ_ALL_POSTS', true);
 }
 
 // Add these JS vars to admin HTML so we can see these values inside the block build/index.js file
@@ -25,6 +28,27 @@ add_action('admin_head', function() {
     echo "<script>window.qq_my_post_type = '" . $post->post_type . "'; window.qq_all_posts = $allPosts;</script>";
   }
 });
+
+// Hierin kan ik dan de post_meta ophalen voor deze specifieke block...
+add_filter('render_block_quick-questionnaire/list', function($block_content, $block, $instance) {
+  global $post;
+  global $qqDisableRenderBlock;
+  if ($qqDisableRenderBlock) return $block_content;
+  
+  $content = get_post_meta($post->ID, '_qq_content_' . $block['attrs']['qqId'], true);
+
+  if (is_singular()) {
+    $answers2send = get_post_meta($post->ID, '_qq_possible_answers', true);
+    if (empty($answers2send)) {
+      $answers2send = '{}';
+    }
+    $showButton = get_post_meta($post->ID, '_qq_enable_show_btn', true) === 'Y'
+      ? 'true' : 'false';
+    return $content . '<script>var QQ_POST_ID = ' . $post->ID . '; var QQ_ANSWERS = ' . $answers2send . '; var QQ_SHOW_BUTTON = ' . $showButton . ';</script>';
+  }
+  return $content;
+}, 10, 3);
+
 
 function qq_register_my_content_types() {
 
@@ -199,41 +223,44 @@ Callback to filter the content only for this specific post types.
 This getting called both when in single mode as well when looping
 through multiple posts.
 */
-function qq_filter_the_content($content) {
+// function qq_filter_the_content($content) {
 
-  // When saving this post from the admin backend we don't apply this filter.
-  if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    return $content;
-  }
+//   // When saving this post from the admin backend we don't apply this filter.
+//   if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+//     return $content;
+//   }
 
-  if (QQ_ALL_POSTS || get_post_type() === MY_QQ_POST_TYPE) {
+//   if (QQ_ALL_POSTS || get_post_type() === MY_QQ_POST_TYPE) {
 
-    $post_id = get_the_ID();
+//     $post_id = get_the_ID();
 
-    $parsedContent = get_post_meta($post_id, '_qq_content', true);
+//     $parsedContent = get_post_meta($post_id, '_qq_content', true);
 
-    if (!empty($parsedContent)) {
-      if (is_singular()) {
-        $answers2send = get_post_meta($post_id, '_qq_possible_answers', true);
-        if (empty($answers2send)) {
-          $answers2send = '{}';
-        }
-        $showButton = get_post_meta($post_id, '_qq_enable_show_btn', true) === 'Y'
-          ? 'true' : 'false';
-        return $parsedContent . '<script>var QQ_POST_ID = ' . $post_id . '; var QQ_ANSWERS = ' . $answers2send . '; var QQ_SHOW_BUTTON = ' . $showButton . ';</script>';
-      }
-      return $parsedContent;
-    }
+//     if (!empty($parsedContent)) {
+//       if (is_singular()) {
+//         $answers2send = get_post_meta($post_id, '_qq_possible_answers', true);
+//         if (empty($answers2send)) {
+//           $answers2send = '{}';
+//         }
+//         $showButton = get_post_meta($post_id, '_qq_enable_show_btn', true) === 'Y'
+//           ? 'true' : 'false';
+//         return $parsedContent . '<script>var QQ_POST_ID = ' . $post_id . '; var QQ_ANSWERS = ' . $answers2send . '; var QQ_SHOW_BUTTON = ' . $showButton . ';</script>';
+//       }
+//       return $parsedContent;
+//     }
     
-  }
-  return $content;
-}
+//   }
+//   return $content;
+// }
 
 function qq_json_encode($value) {
   return json_encode($value, JSON_UNESCAPED_UNICODE);
 }
 
 function qq_save_post($post_id, $post, $update) {
+
+  global $qqDisableRenderBlock;
+  $qqDisableRenderBlock = true;
 
   $separator = defined('QQ_SEPARATOR') ? QQ_SEPARATOR : '|';
   
@@ -245,8 +272,8 @@ function qq_save_post($post_id, $post, $update) {
   $showButtons = [];
   $goodAnswers = array(); // listid => array(listItemId => string|array) (only good answers)
   $answers2send = array(); // to send to client.
-  $content2save = '';
-  $listId = 0;
+  $content2save = [];
+  //$listId = 0;
   $doc = new DOMDocument('1.0', 'UTF-8');
   // Hack to make sure we load this as UTF-8, otherwise it gets loaded as ISO-8859-1
   // Now we will have 2 XML tags...
@@ -257,9 +284,9 @@ function qq_save_post($post_id, $post, $update) {
     $lists = $xpath->query("//ol[contains(@class, 'quick-questionnaire-enabled')] | //ul[contains(@class, 'quick-questionnaire-enabled')]");
     $listItemId = 0;
     foreach ($lists as $list) {
-      $listId += 1;
-      //$listId = $list->getAttribute('data-qq-id');
-      $list->setAttribute('data-qq-id', $listId);
+      //$listId += 1;
+      $listId = $list->getAttribute('data-qq-id');
+      //$list->setAttribute('data-qq-id', $listId);
       $listItems = $list->getElementsByTagName('li');
       if ($list->hasAttribute('data-qq-show-button')) {
         $showButtons[] = $listId;
@@ -333,22 +360,15 @@ function qq_save_post($post_id, $post, $update) {
         }
       }
       $list->setAttribute('class', implode(' ', $classNames));
-    }
-    $bodies = $doc->getElementsByTagName('body');
-    if ($bodies->length > 0) {
-      $body = $bodies->item(0);
-      $div = $doc->createElement('div');
-      while ($body->hasChildNodes()) {
-        $div->appendChild($body->firstChild);
-      }
-      $content2save = $doc->saveXML($div);
+      update_post_meta($post_id, '_qq_content_' . $listId, $doc->saveXML($list));
     }
   }
 
-  update_post_meta($post_id, '_qq_content', $content2save);
   update_post_meta($post_id, '_qq_good_answers', qq_json_encode($goodAnswers));
   update_post_meta($post_id, '_qq_possible_answers', qq_json_encode($answers2send));
   update_post_meta($post_id, '_qq_enable_show_btn', qq_json_encode($showButtons));
+
+  $qqDisableRenderBlock = false;
 
 }
 
@@ -448,8 +468,8 @@ add_action('rest_api_init', function() {
 
 add_action('init', 'qq_register_my_content_types');
 add_action('wp_enqueue_scripts', 'qq_add_plugin_scripts');
-add_filter('the_content', 'qq_filter_the_content');
-add_filter('the_excerpt', 'qq_filter_the_content');
+//add_filter('the_content', 'qq_filter_the_content');
+//add_filter('the_excerpt', 'qq_filter_the_content');
 add_action('wp_ajax_nopriv_qq_check', 'qq_check');
 add_action('wp_ajax_qq_check', 'qq_check');
 add_action('wp_ajax_nopriv_qq_show', 'qq_show');

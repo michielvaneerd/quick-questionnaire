@@ -19,6 +19,9 @@
         },
         "ordered": {
             "type": "boolean" 
+        },
+        "qqId": {
+            "type": "integer"
         }
     }
 }

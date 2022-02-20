@@ -20,6 +20,7 @@
   Array.prototype.forEach.call(lists, function(list) {
 
     var listId = list.dataset.qqId;
+    //var listId = list.getAttribute("data-qq-id");
 
     var listItems = list.querySelectorAll("li[data-qq-item-id]");
     

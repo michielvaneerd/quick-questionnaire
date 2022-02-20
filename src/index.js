@@ -11,6 +11,7 @@
 import { InspectorControls, useBlockProps, RichText } from '@wordpress/block-editor';
 import { PanelBody, CheckboxControl } from '@wordpress/components';
 //import { useEntityProp } from '@wordpress/core-data';
+import { useEffect } from '@wordpress/element';
 import { registerBlockType, unregisterBlockType } from '@wordpress/blocks';
 import domReady from '@wordpress/dom-ready';
 
@@ -146,10 +147,16 @@ domReady(function () {
 registerBlockType('quick-questionnaire/list', {
     edit: function (props) {
         const { attributes, setAttributes } = props;
-        const { showButton, ordered } = attributes;
+        const { showButton, ordered, qqId } = attributes;
         const blockProps = useBlockProps({
             className: "quick-questionnaire-enabled"
         });
+
+        useEffect(() => {
+            setAttributes({
+                qqId: qqId || Date.now() 
+            });
+        }, []);
 
         return <>
             <RichText
@@ -177,10 +184,18 @@ registerBlockType('quick-questionnaire/list', {
     },
     save: function (props) {
         const { attributes } = props;
-        const { showButton, ordered } = attributes;
+        const { showButton, ordered, qqId } = attributes;
         const blockProps = useBlockProps.save();
+
+        //const [ meta, setMeta ] = useEntityProp('postType', 'quick-questionnaire', 'meta');
+
+        // Hier moet ik attributes.content parsen en opslaan in atributes.
+        // Dit kan niet want save kan geen sideeffects hebben en moet een pure function zijn...
+        //console.log(attributes.content);
+        
         return <RichText.Content {...blockProps}
             data-qq-show-button={showButton || null}
+            data-qq-id={attributes.qqId}
             tagName={ordered ? "ol" : "ul"}
             className="quick-questionnaire-enabled"
             value={attributes.content} />;
