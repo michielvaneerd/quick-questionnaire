@@ -262,6 +262,17 @@ function qq_save_post($post_id, $post, $update) {
   global $qqDisableRenderBlock;
   $qqDisableRenderBlock = true;
 
+  // Delete all our meta data first, we create them below anyway
+  $metaData = get_post_meta($post_id);
+  if (!empty($metaData) && is_array($metaData)) {
+    $keys = array_keys($metaData);
+    foreach ($keys as $key) {
+      if (strpos($key, '_qq_') === 0) {
+        delete_post_meta($post_id, $key);
+      }
+    }
+  }
+
   $separator = defined('QQ_SEPARATOR') ? QQ_SEPARATOR : '|';
   
   // $update is false on first save for new posts, maybe then we can have a shortcut?
