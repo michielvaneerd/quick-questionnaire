@@ -267,7 +267,7 @@ function qq_save_post($post_id, $post, $update) {
   if (!empty($metaData) && is_array($metaData)) {
     $keys = array_keys($metaData);
     foreach ($keys as $key) {
-      if (strpos($key, '_qq_') === 0) {
+      if (strpos($key, '_qq_content_') === 0) {
         delete_post_meta($post_id, $key);
       }
     }
