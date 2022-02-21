@@ -4,15 +4,18 @@ import { useEffect, useState } from '@wordpress/element';
 
 export const MyModal = (props) => {
 
-    const [ answers, setAnswers] = useState([]);
-    const { title } = props;
+    const { title, answers, setAnswers, question, setQuestion, onModalClose, closeModal, type } = props;
 
-    return <Modal title={title} onRequestClose={() => console.log('CLOSE')}></Modal>;
+    function updateAnswer(index, newValue) {
+        let newAnswers = [...answers];
+        newAnswers[index] = newValue;
+        setAnswers(newAnswers);
+    }
 
-    return <Modal title={title} onRequestClose={() => console.log('CLOSE')}>
-        <TextControl label="Question" value='' onChange={(value) => console.log(value)} />
-        {answers.map((answer) => <TextControl value={answer} onChange={(value) => console.log(value)} />)}
-        <Button onClick={() => setAnswers(answers.concat('Answer'))}>Click</Button>
-        <Button onClick={() => console.log('OK')}>OK</Button>
+    return <Modal title={title} onRequestClose={closeModal}>
+        <TextControl label="Question" value={question} onChange={(value) => setQuestion(value)} />
+        {answers.map((answer, index) => <TextControl key={index} value={answer} onChange={(value) => { updateAnswer(index, value); }} />)}
+        <Button onClick={() => setAnswers(answers.concat(''))}>Click</Button>
+        <Button onClick={onModalClose}>OK</Button>
     </Modal>;
 }

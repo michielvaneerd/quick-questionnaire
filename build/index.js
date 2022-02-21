@@ -48,28 +48,40 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const MyModal = props => {
-  const [answers, setAnswers] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useState)([]);
   const {
-    title
+    title,
+    answers,
+    setAnswers,
+    question,
+    setQuestion,
+    onModalClose,
+    closeModal,
+    type
   } = props;
+
+  function updateAnswer(index, newValue) {
+    let newAnswers = [...answers];
+    newAnswers[index] = newValue;
+    setAnswers(newAnswers);
+  }
+
   return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Modal, {
     title: title,
-    onRequestClose: () => console.log('CLOSE')
-  });
-  return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Modal, {
-    title: title,
-    onRequestClose: () => console.log('CLOSE')
+    onRequestClose: closeModal
   }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.TextControl, {
     label: "Question",
-    value: "",
-    onChange: value => console.log(value)
-  }), answers.map(answer => (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.TextControl, {
+    value: question,
+    onChange: value => setQuestion(value)
+  }), answers.map((answer, index) => (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.TextControl, {
+    key: index,
     value: answer,
-    onChange: value => console.log(value)
+    onChange: value => {
+      updateAnswer(index, value);
+    }
   })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Button, {
-    onClick: () => setAnswers(answers.concat('Answer'))
+    onClick: () => setAnswers(answers.concat(''))
   }, "Click"), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Button, {
-    onClick: () => console.log('OK')
+    onClick: onModalClose
   }, "OK"));
 };
 
@@ -403,6 +415,12 @@ function onAdd(arg) {
   // });
 }
 
+const defaultNewQuestionModal = {
+  open: false,
+  type: null,
+  question: '',
+  answers: []
+};
 (0,_wordpress_blocks__WEBPACK_IMPORTED_MODULE_4__.registerBlockType)('quick-questionnaire/list', {
   edit: function (props) {
     const {
@@ -416,58 +434,79 @@ function onAdd(arg) {
     } = attributes;
     const blockProps = (0,_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.useBlockProps)({
       className: "quick-questionnaire-enabled"
-    });
-    const [isModalOpen, setModalOpen] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(false); //const [question, setQuestion] = useState('');
+    }); // const [isModalOpen, setModalOpen] = useState(false);
+    // const [ type, setType ] = useState(null);
+
+    const [questionModal, setQuestionModal] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)({ ...defaultNewQuestionModal
+    }); //const [question, setQuestion] = useState('');
     //const [answers, setAnswers] = useState([]);
 
     (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
       setAttributes({
         qqId: qqId || Date.now()
       });
-    }, []); // <Modal title="My Modal Window" onRequestClose={() => setModalOpen(false)}>
-    //         <TextControl label="Question" value={question} onChange={(value) => setQuestion(value)} />
-    //         {answers.map((answer) => <TextControl value={answer} onChange={(value) => console.log(value)} />)}
-    //         <Button onClick={() => setAnswers(answers.concat('Answer'))}>Click</Button>
-    //         <Button onClick={() => setAttributes({
-    //             content: attributes.content + '<li>' + question + ' {text{ Answer }}</li>'
-    //         })}>OK</Button>
-    //     </Modal>
+    }, []);
 
-    const modal = isModalOpen ? (0,_modal__WEBPACK_IMPORTED_MODULE_6__.MyModal)({
-      title: "TEXT"
+    function onModalClose() {
+      setAttributes({
+        content: attributes.content + '<li>' + questionModal.question + ' {' + questionModal.type + '{ ' + questionModal.answers.join(' | ') + ' }}</li>'
+      });
+      setQuestionModal({ ...defaultNewQuestionModal
+      });
+    }
+
+    function openModal(type) {
+      setQuestionModal({ ...defaultNewQuestionModal,
+        type,
+        open: true
+      });
+    }
+
+    function closeModal() {
+      setQuestionModal({ ...defaultNewQuestionModal
+      });
+    }
+
+    function setAnswers(newAnswers) {
+      //let newAnswers = [...questionModal.answers];
+      //newAnswers[index] = newValue;
+      setQuestionModal({ ...questionModal,
+        answers: newAnswers
+      });
+    }
+
+    function setQuestion(newValue) {
+      setQuestionModal({ ...questionModal,
+        question: newValue
+      });
+    }
+
+    const modalWindow = questionModal.open ? (0,_modal__WEBPACK_IMPORTED_MODULE_6__.MyModal)({
+      title: "TEXT",
+      answers: questionModal.answers,
+      setAnswers,
+      question: questionModal.question,
+      setQuestion,
+      closeModal,
+      onModalClose,
+      type: questionModal.type
     }) : null;
     const controls = [{
       title: 'Case sensitive text',
       //onClick: () => onAdd({ attributes, setAttributes, setModalOpen, type: 'text' })
-      onClick: () => setModalOpen(true)
+      onClick: () => openModal('text')
     }, {
       title: 'Case insensitive text',
-      onClick: () => onAdd({
-        attributes,
-        setAttributes,
-        type: 'itext'
-      })
+      onClick: () => openModal('itext')
     }, {
       title: 'Radio',
-      onClick: () => onAdd({
-        attributes,
-        setAttributes,
-        type: 'radio'
-      })
+      onClick: () => openModal('radio')
     }, {
       title: 'Checkbox',
-      onClick: () => onAdd({
-        attributes,
-        setAttributes,
-        type: 'checkbox'
-      })
+      onClick: () => openModal('checkbox')
     }, {
       title: 'Regular expression',
-      onClick: () => onAdd({
-        attributes,
-        setAttributes,
-        type: 'reg'
-      })
+      onClick: () => openModal('reg')
     }];
     return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.Fragment, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.RichText, (0,_babel_runtime_helpers_extends__WEBPACK_IMPORTED_MODULE_0__["default"])({}, blockProps, {
       tagName: ordered ? "ol" : "ul",
@@ -498,7 +537,7 @@ function onAdd(arg) {
       icon: _wordpress_icons__WEBPACK_IMPORTED_MODULE_7__["default"],
       label: "Add new question",
       controls: controls
-    }))), modal);
+    }))), modalWindow);
   },
   save: function (props) {
     const {

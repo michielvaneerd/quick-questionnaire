@@ -15,7 +15,7 @@ import { useEffect, useState } from '@wordpress/element';
 import { registerBlockType, unregisterBlockType } from '@wordpress/blocks';
 import domReady from '@wordpress/dom-ready';
 import { create } from '@wordpress/icons';
-import { MyModal } from './modal'; 
+import { MyModal } from './modal';
 
 // const blockName = 'core/list';
 
@@ -153,6 +153,13 @@ function onAdd(arg) {
     // });
 }
 
+const defaultNewQuestionModal = {
+    open: false,
+    type: null,
+    question: '',
+    answers: []
+};
+
 registerBlockType('quick-questionnaire/list', {
     edit: function (props) {
         const { attributes, setAttributes } = props;
@@ -160,7 +167,9 @@ registerBlockType('quick-questionnaire/list', {
         const blockProps = useBlockProps({
             className: "quick-questionnaire-enabled"
         });
-        const [isModalOpen, setModalOpen] = useState(false);
+        // const [isModalOpen, setModalOpen] = useState(false);
+        // const [ type, setType ] = useState(null);
+        const [questionModal, setQuestionModal] = useState({ ...defaultNewQuestionModal });
         //const [question, setQuestion] = useState('');
         //const [answers, setAnswers] = useState([]);
 
@@ -170,18 +179,42 @@ registerBlockType('quick-questionnaire/list', {
             });
         }, []);
 
-        // <Modal title="My Modal Window" onRequestClose={() => setModalOpen(false)}>
-        //         <TextControl label="Question" value={question} onChange={(value) => setQuestion(value)} />
-        //         {answers.map((answer) => <TextControl value={answer} onChange={(value) => console.log(value)} />)}
-        //         <Button onClick={() => setAnswers(answers.concat('Answer'))}>Click</Button>
-        //         <Button onClick={() => setAttributes({
-        //             content: attributes.content + '<li>' + question + ' {text{ Answer }}</li>'
-        //         })}>OK</Button>
-        //     </Modal>
+        function onModalClose() {
+            setAttributes({
+                content: attributes.content + '<li>' + questionModal.question + ' {' + questionModal.type + '{ ' + questionModal.answers.join(' | ') + ' }}</li>'
+            });
+            setQuestionModal({ ...defaultNewQuestionModal });
+        }
 
-        const modal = isModalOpen
+        function openModal(type) {
+            setQuestionModal({
+                ...defaultNewQuestionModal,
+                type,
+                open: true
+            });
+        }
+
+        function closeModal() {
+            setQuestionModal({
+                ...defaultNewQuestionModal
+            });
+        }
+
+        function setAnswers(newAnswers) {
+            //let newAnswers = [...questionModal.answers];
+            //newAnswers[index] = newValue;
+            setQuestionModal({ ...questionModal, answers: newAnswers });
+        }
+
+        function setQuestion(newValue) {
+            setQuestionModal({
+                ...questionModal, question: newValue
+            });
+        }
+
+        const modalWindow = questionModal.open
             ?
-            MyModal({title: "TEXT"})
+            MyModal({ title: "TEXT", answers: questionModal.answers, setAnswers, question: questionModal.question, setQuestion, closeModal, onModalClose, type: questionModal.type })
             :
             null;
 
@@ -189,23 +222,23 @@ registerBlockType('quick-questionnaire/list', {
             {
                 title: 'Case sensitive text',
                 //onClick: () => onAdd({ attributes, setAttributes, setModalOpen, type: 'text' })
-                onClick: () => setModalOpen(true)
+                onClick: () => openModal('text')
             },
             {
                 title: 'Case insensitive text',
-                onClick: () => onAdd({ attributes, setAttributes, type: 'itext' })
+                onClick: () => openModal('itext')
             },
             {
                 title: 'Radio',
-                onClick: () => onAdd({ attributes, setAttributes, type: 'radio' })
+                onClick: () => openModal('radio')
             },
             {
                 title: 'Checkbox',
-                onClick: () => onAdd({ attributes, setAttributes, type: 'checkbox' })
+                onClick: () => openModal('checkbox')
             },
             {
                 title: 'Regular expression',
-                onClick: () => onAdd({ attributes, setAttributes, type: 'reg' })
+                onClick: () => openModal('reg')
             },
         ];
 
@@ -236,7 +269,7 @@ registerBlockType('quick-questionnaire/list', {
                     <ToolbarDropdownMenu icon={create} label="Add new question" controls={controls} />
                 </ToolbarGroup>
             </BlockControls>
-            {modal}
+            {modalWindow}
         </>;
     },
     save: function (props) {
