@@ -148,16 +148,13 @@ domReady(function () {
 function onAdd(arg) {
     const { attributes, setAttributes, type, setModalOpen } = arg;
     setModalOpen(true);
-    // setAttributes({
-    //     content: attributes.content + '<li>New item {' + type + '{ Answer }}</li>'
-    // });
 }
 
 const defaultNewQuestionModal = {
     open: false,
     type: null,
     question: '',
-    answers: []
+    answers: ['']
 };
 
 registerBlockType('quick-questionnaire/list', {
@@ -167,11 +164,7 @@ registerBlockType('quick-questionnaire/list', {
         const blockProps = useBlockProps({
             className: "quick-questionnaire-enabled"
         });
-        // const [isModalOpen, setModalOpen] = useState(false);
-        // const [ type, setType ] = useState(null);
         const [questionModal, setQuestionModal] = useState({ ...defaultNewQuestionModal });
-        //const [question, setQuestion] = useState('');
-        //const [answers, setAnswers] = useState([]);
 
         useEffect(() => {
             setAttributes({
@@ -180,8 +173,11 @@ registerBlockType('quick-questionnaire/list', {
         }, []);
 
         function onModalClose() {
+            let content = attributes.content;
+            if (content.endsWith('<li></li>')) content = content.substring(0, content.length - '<li></li>'.length);
+            console.log(content);
             setAttributes({
-                content: attributes.content + '<li>' + questionModal.question + ' {' + questionModal.type + '{ ' + questionModal.answers.join(' | ') + ' }}</li>'
+                content: content + '<li>' + questionModal.question + ' {' + questionModal.type + '{ ' + questionModal.answers.join(' | ') + ' }}</li>'
             });
             setQuestionModal({ ...defaultNewQuestionModal });
         }

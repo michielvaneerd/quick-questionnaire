@@ -15,10 +15,12 @@
             "selector": "ol, ul"
         },
         "showButton": {
-            "type": "boolean" 
+            "type": "boolean",
+            "default": false
         },
         "ordered": {
-            "type": "boolean" 
+            "type": "boolean",
+            "default": false
         },
         "qqId": {
             "type": "integer"

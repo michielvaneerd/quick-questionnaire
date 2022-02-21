@@ -47,6 +47,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+const multipleAnswersTypes = ['checkbox', 'radio'];
 const MyModal = props => {
   const {
     title,
@@ -69,16 +70,18 @@ const MyModal = props => {
     title: title,
     onRequestClose: closeModal
   }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.TextControl, {
+    autoFocus: question === '' || answers.length === 0,
     label: "Question",
     value: question,
     onChange: value => setQuestion(value)
   }), answers.map((answer, index) => (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.TextControl, {
+    autoFocus: question !== '' && index === answers.length - 1,
     key: index,
     value: answer,
     onChange: value => {
       updateAnswer(index, value);
     }
-  })), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Button, {
+  })), multipleAnswersTypes.indexOf(type) !== -1 && (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Button, {
     onClick: () => setAnswers(answers.concat(''))
   }, "Click"), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Button, {
     onClick: onModalClose
@@ -410,16 +413,14 @@ function onAdd(arg) {
     type,
     setModalOpen
   } = arg;
-  setModalOpen(true); // setAttributes({
-  //     content: attributes.content + '<li>New item {' + type + '{ Answer }}</li>'
-  // });
+  setModalOpen(true);
 }
 
 const defaultNewQuestionModal = {
   open: false,
   type: null,
   question: '',
-  answers: []
+  answers: ['']
 };
 (0,_wordpress_blocks__WEBPACK_IMPORTED_MODULE_4__.registerBlockType)('quick-questionnaire/list', {
   edit: function (props) {
@@ -434,13 +435,9 @@ const defaultNewQuestionModal = {
     } = attributes;
     const blockProps = (0,_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.useBlockProps)({
       className: "quick-questionnaire-enabled"
-    }); // const [isModalOpen, setModalOpen] = useState(false);
-    // const [ type, setType ] = useState(null);
-
+    });
     const [questionModal, setQuestionModal] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)({ ...defaultNewQuestionModal
-    }); //const [question, setQuestion] = useState('');
-    //const [answers, setAnswers] = useState([]);
-
+    });
     (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
       setAttributes({
         qqId: qqId || Date.now()
@@ -448,8 +445,11 @@ const defaultNewQuestionModal = {
     }, []);
 
     function onModalClose() {
+      let content = attributes.content;
+      if (content.endsWith('<li></li>')) content = content.substring(0, content.length - '<li></li>'.length);
+      console.log(content);
       setAttributes({
-        content: attributes.content + '<li>' + questionModal.question + ' {' + questionModal.type + '{ ' + questionModal.answers.join(' | ') + ' }}</li>'
+        content: content + '<li>' + questionModal.question + ' {' + questionModal.type + '{ ' + questionModal.answers.join(' | ') + ' }}</li>'
       });
       setQuestionModal({ ...defaultNewQuestionModal
       });
