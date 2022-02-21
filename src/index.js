@@ -8,12 +8,14 @@
 
 //import { addFilter } from '@wordpress/hooks';
 //import { createHigherOrderComponent } from '@wordpress/compose';
-import { InspectorControls, useBlockProps, RichText } from '@wordpress/block-editor';
-import { PanelBody, CheckboxControl } from '@wordpress/components';
+import { InspectorControls, useBlockProps, RichText, BlockControls } from '@wordpress/block-editor';
+import { PanelBody, CheckboxControl, ToolbarDropdownMenu, Button, Modal, ToolbarGroup, TextControl } from '@wordpress/components';
 //import { useEntityProp } from '@wordpress/core-data';
-import { useEffect } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import { registerBlockType, unregisterBlockType } from '@wordpress/blocks';
 import domReady from '@wordpress/dom-ready';
+import { create } from '@wordpress/icons';
+import { MyModal } from './modal'; 
 
 // const blockName = 'core/list';
 
@@ -143,6 +145,13 @@ domReady(function () {
     }
 });
 
+function onAdd(arg) {
+    const { attributes, setAttributes, type, setModalOpen } = arg;
+    setModalOpen(true);
+    // setAttributes({
+    //     content: attributes.content + '<li>New item {' + type + '{ Answer }}</li>'
+    // });
+}
 
 registerBlockType('quick-questionnaire/list', {
     edit: function (props) {
@@ -151,12 +160,54 @@ registerBlockType('quick-questionnaire/list', {
         const blockProps = useBlockProps({
             className: "quick-questionnaire-enabled"
         });
+        const [isModalOpen, setModalOpen] = useState(false);
+        //const [question, setQuestion] = useState('');
+        //const [answers, setAnswers] = useState([]);
 
         useEffect(() => {
             setAttributes({
-                qqId: qqId || Date.now() 
+                qqId: qqId || Date.now()
             });
         }, []);
+
+        // <Modal title="My Modal Window" onRequestClose={() => setModalOpen(false)}>
+        //         <TextControl label="Question" value={question} onChange={(value) => setQuestion(value)} />
+        //         {answers.map((answer) => <TextControl value={answer} onChange={(value) => console.log(value)} />)}
+        //         <Button onClick={() => setAnswers(answers.concat('Answer'))}>Click</Button>
+        //         <Button onClick={() => setAttributes({
+        //             content: attributes.content + '<li>' + question + ' {text{ Answer }}</li>'
+        //         })}>OK</Button>
+        //     </Modal>
+
+        const modal = isModalOpen
+            ?
+            MyModal({title: "TEXT"})
+            :
+            null;
+
+        const controls = [
+            {
+                title: 'Case sensitive text',
+                //onClick: () => onAdd({ attributes, setAttributes, setModalOpen, type: 'text' })
+                onClick: () => setModalOpen(true)
+            },
+            {
+                title: 'Case insensitive text',
+                onClick: () => onAdd({ attributes, setAttributes, type: 'itext' })
+            },
+            {
+                title: 'Radio',
+                onClick: () => onAdd({ attributes, setAttributes, type: 'radio' })
+            },
+            {
+                title: 'Checkbox',
+                onClick: () => onAdd({ attributes, setAttributes, type: 'checkbox' })
+            },
+            {
+                title: 'Regular expression',
+                onClick: () => onAdd({ attributes, setAttributes, type: 'reg' })
+            },
+        ];
 
         return <>
             <RichText
@@ -180,6 +231,12 @@ registerBlockType('quick-questionnaire/list', {
                     }} />
                 </PanelBody>
             </InspectorControls>
+            <BlockControls>
+                <ToolbarGroup>
+                    <ToolbarDropdownMenu icon={create} label="Add new question" controls={controls} />
+                </ToolbarGroup>
+            </BlockControls>
+            {modal}
         </>;
     },
     save: function (props) {
@@ -192,7 +249,7 @@ registerBlockType('quick-questionnaire/list', {
         // Hier moet ik attributes.content parsen en opslaan in atributes.
         // Dit kan niet want save kan geen sideeffects hebben en moet een pure function zijn...
         //console.log(attributes.content);
-        
+
         return <RichText.Content {...blockProps}
             data-qq-show-button={showButton || null}
             data-qq-id={attributes.qqId}
