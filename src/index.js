@@ -157,6 +157,17 @@ const defaultNewQuestionModal = {
     answers: ['']
 };
 
+const typeTitles = {
+    'text': 'Case sensitive text',
+    'itext': 'Case insensitive text',
+    'radio': 'Radio',
+    'checkbox': 'Checkbox',
+    'reg': 'Regular expression'
+};
+
+// Store caret position before we open the modal. If we don't do this, we cannot retrieve it afterwards.
+let range = null;
+
 registerBlockType('quick-questionnaire/list', {
     edit: function (props) {
         const { attributes, setAttributes } = props;
@@ -173,16 +184,45 @@ registerBlockType('quick-questionnaire/list', {
         }, []);
 
         function onModalClose() {
-            let content = attributes.content;
-            if (content.endsWith('<li></li>')) content = content.substring(0, content.length - '<li></li>'.length);
-            console.log(content);
+            //let content = attributes.content;
+
+            const li = range.startContainer.parentElement;
+            // als li.innerHTML leeg is, dan plaatsen we de nieuwe regel hier (men staat dan met de cursor op een nieuwe lege regel)
+            // als die NIET leeg is, dan plaatsen we de nieuwe regel erna, dus eventueel ook ergens in de lijst zelf.
+            const list = li.parentElement;
+            const liIndex = Array.prototype.indexOf.call(list.children, li);
+
+            const fragment = document.createDocumentFragment();
+            fragment.appendChild(list.cloneNode(true));
+            const newList = fragment.firstChild;
+
+            // trim() is needed because by default a whitespace like character is added to a new list item
+            if (!li.innerHTML.trim()) {
+                newList.children[liIndex].innerHTML = questionModal.question + ' {' + questionModal.type + '{ ' + questionModal.answers.join(' | ') + ' }}';
+            } else {
+                let newLi = document.createElement('li');
+                newLi.innerHTML = questionModal.question + ' {' + questionModal.type + '{ ' + questionModal.answers.join(' | ') + ' }}';
+                if (liIndex + 1 === newList.children.length) {
+                    newList.appendChild(newLi);
+                } else {
+                    newList.insertBefore(newLi, newList.children[liIndex + 1]);
+                }
+            }
+
             setAttributes({
-                content: content + '<li>' + questionModal.question + ' {' + questionModal.type + '{ ' + questionModal.answers.join(' | ') + ' }}</li>'
+                content: newList.innerHTML
             });
+
+            // if (content.endsWith('<li></li>')) content = content.substring(0, content.length - '<li></li>'.length);
+            // console.log(content);
+            // setAttributes({
+            //     content: content + '<li>' + questionModal.question + ' {' + questionModal.type + '{ ' + questionModal.answers.join(' | ') + ' }}</li>'
+            // });
             setQuestionModal({ ...defaultNewQuestionModal });
         }
 
         function openModal(type) {
+            range = window.getSelection().getRangeAt(0);
             setQuestionModal({
                 ...defaultNewQuestionModal,
                 type,
@@ -210,30 +250,30 @@ registerBlockType('quick-questionnaire/list', {
 
         const modalWindow = questionModal.open
             ?
-            MyModal({ title: "TEXT", answers: questionModal.answers, setAnswers, question: questionModal.question, setQuestion, closeModal, onModalClose, type: questionModal.type })
+            MyModal({ title: typeTitles[questionModal.type], answers: questionModal.answers, setAnswers, question: questionModal.question, setQuestion, closeModal, onModalClose, type: questionModal.type })
             :
             null;
 
         const controls = [
             {
-                title: 'Case sensitive text',
+                title: typeTitles.text,
                 //onClick: () => onAdd({ attributes, setAttributes, setModalOpen, type: 'text' })
                 onClick: () => openModal('text')
             },
             {
-                title: 'Case insensitive text',
+                title: typeTitles.itext,
                 onClick: () => openModal('itext')
             },
             {
-                title: 'Radio',
+                title: typeTitles.radio,
                 onClick: () => openModal('radio')
             },
             {
-                title: 'Checkbox',
+                title: typeTitles.checkbox,
                 onClick: () => openModal('checkbox')
             },
             {
-                title: 'Regular expression',
+                title: typeTitles.reg,
                 onClick: () => openModal('reg')
             },
         ];

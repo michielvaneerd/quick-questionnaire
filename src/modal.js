@@ -1,5 +1,4 @@
-import { CheckboxControl, Button, Modal, TextControl } from '@wordpress/components';
-import { useEffect, useState } from '@wordpress/element';
+import { Button, Modal, TextControl, __experimentalHStack as HStack } from '@wordpress/components';
 
 const multipleAnswersTypes = ['checkbox', 'radio'];
 
@@ -15,8 +14,8 @@ export const MyModal = (props) => {
 
     return <Modal title={title} onRequestClose={closeModal}>
         <TextControl autoFocus={question === '' || answers.length === 0} label="Question" value={question} onChange={(value) => setQuestion(value)} />
-        {answers.map((answer, index) => <TextControl autoFocus={question !== '' && index === answers.length - 1} key={index} value={answer} onChange={(value) => { updateAnswer(index, value); }} />)}
-        {multipleAnswersTypes.indexOf(type) !== -1 && <Button onClick={() => setAnswers(answers.concat(''))}>Click</Button>}
-        <Button onClick={onModalClose}>OK</Button>
+        {answers.map((answer, index) => <TextControl label="Answer" autoFocus={question !== '' && index === answers.length - 1} key={index} value={answer} onChange={(value) => { updateAnswer(index, value); }} />)}
+        {multipleAnswersTypes.indexOf(type) !== -1 && <Button variant="link" onClick={() => setAnswers(answers.concat(''))} text="Add answer" />}
+        <HStack alignment="right"><Button variant="primary" onClick={onModalClose}>OK</Button></HStack>
     </Modal>;
 }

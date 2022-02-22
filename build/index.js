@@ -46,7 +46,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__);
 
 
-
 const multipleAnswersTypes = ['checkbox', 'radio'];
 const MyModal = props => {
   const {
@@ -75,6 +74,7 @@ const MyModal = props => {
     value: question,
     onChange: value => setQuestion(value)
   }), answers.map((answer, index) => (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.TextControl, {
+    label: "Answer",
     autoFocus: question !== '' && index === answers.length - 1,
     key: index,
     value: answer,
@@ -82,10 +82,15 @@ const MyModal = props => {
       updateAnswer(index, value);
     }
   })), multipleAnswersTypes.indexOf(type) !== -1 && (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Button, {
-    onClick: () => setAnswers(answers.concat(''))
-  }, "Click"), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Button, {
+    variant: "link",
+    onClick: () => setAnswers(answers.concat('')),
+    text: "Add answer"
+  }), (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.__experimentalHStack, {
+    alignment: "right"
+  }, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.createElement)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Button, {
+    variant: "primary",
     onClick: onModalClose
-  }, "OK"));
+  }, "OK")));
 };
 
 /***/ }),
@@ -422,6 +427,15 @@ const defaultNewQuestionModal = {
   question: '',
   answers: ['']
 };
+const typeTitles = {
+  'text': 'Case sensitive text',
+  'itext': 'Case insensitive text',
+  'radio': 'Radio',
+  'checkbox': 'Checkbox',
+  'reg': 'Regular expression'
+}; // Store caret position before we open the modal. If we don't do this, we cannot retrieve it afterwards.
+
+let range = null;
 (0,_wordpress_blocks__WEBPACK_IMPORTED_MODULE_4__.registerBlockType)('quick-questionnaire/list', {
   edit: function (props) {
     const {
@@ -445,17 +459,43 @@ const defaultNewQuestionModal = {
     }, []);
 
     function onModalClose() {
-      let content = attributes.content;
-      if (content.endsWith('<li></li>')) content = content.substring(0, content.length - '<li></li>'.length);
-      console.log(content);
+      //let content = attributes.content;
+      const li = range.startContainer.parentElement; // als li.innerHTML leeg is, dan plaatsen we de nieuwe regel hier (men staat dan met de cursor op een nieuwe lege regel)
+      // als die NIET leeg is, dan plaatsen we de nieuwe regel erna, dus eventueel ook ergens in de lijst zelf.
+
+      const list = li.parentElement;
+      const liIndex = Array.prototype.indexOf.call(list.children, li);
+      const fragment = document.createDocumentFragment();
+      fragment.appendChild(list.cloneNode(true));
+      const newList = fragment.firstChild; // trim() is needed because by default a whitespace like character is added to a new list item
+
+      if (!li.innerHTML.trim()) {
+        newList.children[liIndex].innerHTML = questionModal.question + ' {' + questionModal.type + '{ ' + questionModal.answers.join(' | ') + ' }}';
+      } else {
+        let newLi = document.createElement('li');
+        newLi.innerHTML = questionModal.question + ' {' + questionModal.type + '{ ' + questionModal.answers.join(' | ') + ' }}';
+
+        if (liIndex + 1 === newList.children.length) {
+          newList.appendChild(newLi);
+        } else {
+          newList.insertBefore(newLi, newList.children[liIndex + 1]);
+        }
+      }
+
       setAttributes({
-        content: content + '<li>' + questionModal.question + ' {' + questionModal.type + '{ ' + questionModal.answers.join(' | ') + ' }}</li>'
-      });
+        content: newList.innerHTML
+      }); // if (content.endsWith('<li></li>')) content = content.substring(0, content.length - '<li></li>'.length);
+      // console.log(content);
+      // setAttributes({
+      //     content: content + '<li>' + questionModal.question + ' {' + questionModal.type + '{ ' + questionModal.answers.join(' | ') + ' }}</li>'
+      // });
+
       setQuestionModal({ ...defaultNewQuestionModal
       });
     }
 
     function openModal(type) {
+      range = window.getSelection().getRangeAt(0);
       setQuestionModal({ ...defaultNewQuestionModal,
         type,
         open: true
@@ -482,7 +522,7 @@ const defaultNewQuestionModal = {
     }
 
     const modalWindow = questionModal.open ? (0,_modal__WEBPACK_IMPORTED_MODULE_6__.MyModal)({
-      title: "TEXT",
+      title: typeTitles[questionModal.type],
       answers: questionModal.answers,
       setAnswers,
       question: questionModal.question,
@@ -492,20 +532,20 @@ const defaultNewQuestionModal = {
       type: questionModal.type
     }) : null;
     const controls = [{
-      title: 'Case sensitive text',
+      title: typeTitles.text,
       //onClick: () => onAdd({ attributes, setAttributes, setModalOpen, type: 'text' })
       onClick: () => openModal('text')
     }, {
-      title: 'Case insensitive text',
+      title: typeTitles.itext,
       onClick: () => openModal('itext')
     }, {
-      title: 'Radio',
+      title: typeTitles.radio,
       onClick: () => openModal('radio')
     }, {
-      title: 'Checkbox',
+      title: typeTitles.checkbox,
       onClick: () => openModal('checkbox')
     }, {
-      title: 'Regular expression',
+      title: typeTitles.reg,
       onClick: () => openModal('reg')
     }];
     return (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.Fragment, null, (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.createElement)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_2__.RichText, (0,_babel_runtime_helpers_extends__WEBPACK_IMPORTED_MODULE_0__["default"])({}, blockProps, {
