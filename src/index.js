@@ -184,7 +184,13 @@ registerBlockType('quick-questionnaire/list', {
         }, []);
 
         function onModalClose() {
-            //let content = attributes.content;
+            if (!range) {
+                setAttributes({
+                    content: attributes.content + '<li>' + questionModal.question + ' {' + questionModal.type + '{ ' + questionModal.answers.join(' | ') + ' }}</li>'
+                });
+                setQuestionModal({ ...defaultNewQuestionModal });
+                return;
+            }
 
             const li = range.startContainer.parentElement;
             // als li.innerHTML leeg is, dan plaatsen we de nieuwe regel hier (men staat dan met de cursor op een nieuwe lege regel)

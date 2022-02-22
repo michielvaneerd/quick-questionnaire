@@ -92,6 +92,9 @@ By default the `|` is used to separate the radio and checkbox options, but you c
 
 == Changelog ==
 
+= 2.4 =
+* Add question with a modal window
+
 = 2.3 =
 * Only save the list content instead of the whole post content
 
