@@ -2,7 +2,7 @@
 Contributors: michielve
 Tags: exercise, practice, test
 Requires at least: 3.0.1
-Tested up to: 6.0
+Tested up to: 6.1.1
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -91,6 +91,9 @@ By default the `|` is used to separate the radio and checkbox options, but you c
 4. Edit the exercise in the editor is simple
 
 == Changelog ==
+
+= 2.5 =
+* Fixed bug: not checking if varaible is array
 
 = 2.4 =
 * Add question with a modal window

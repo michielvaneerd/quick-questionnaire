@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Quick Questionnaire
-Version: 2.4
+Version: 2.5
 Description: Create simple questionnaires directly in the editor
 Author: Michiel van Eerd
 Author URI: http://www.michielvaneerd.nl
@@ -171,7 +171,7 @@ function qq_check_shared($post_id, $postedAnswers) {
           if (in_array(strtolower($postedListAnswers[$questionId]), $goodAnswerLowerCase)) {
             $results[$questionId] = true;
           }
-        } elseif (count($goodAnswer) == count($postedListAnswers[$questionId])) {
+        } elseif (is_array($postedListAnswers[$questionId]) && count($goodAnswer) === count($postedListAnswers[$questionId])) {
           $results[$questionId] = true;
           foreach ($goodAnswer as $ga) {
             if (!in_array($ga, $postedListAnswers[$questionId])) {
